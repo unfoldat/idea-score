@@ -3,638 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>아이디어 악보</title>
+<title>willfoldat — 스스로 배우는 도구들</title>
+<meta name="description" content="혼자 공부하고 기록하는 도구 모음. 아이디어를 악보처럼 기록하고, 정보 검증 방법과 웹 개발 팁을 찾아보세요.">
+<meta property="og:title" content="willfoldat — 스스로 배우는 도구들">
+<meta property="og:description" content="아이디어 악보, 신뢰도 검사 스킬, GitHub Pages 설정 가이드">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://www.willfoldat.com/">
 <style>
-:root {
-  --ink:#1a1a2e; --muted:#6b7280; --border:#e5e7eb;
-  --skill-bg:#eef2ff; --skill-fg:#4f46e5;
-  --writing-bg:#fffbeb;
-  --c-full:#1a3a5c; --c-half:#f59e0b; --c-deceptive:#ef4444; --c-open:#10b981;
-}
+:root{--ink:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--accent:#4f46e5;--bg:#fafafa}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
-  background:#fafafa;color:var(--ink);font-size:14px;line-height:1.6;padding:2rem}
-
-/* ── 상단 툴바 ── */
-.toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap}
-.toolbar h1{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-right:auto}
-.btn{padding:.35rem .8rem;border-radius:6px;border:1px solid var(--border);
-  background:#fff;font-size:.75rem;cursor:pointer;color:var(--ink);transition:background .12s}
-.btn:hover{background:var(--border)}
-.btn-primary{background:var(--ink);color:#fff;border-color:var(--ink)}
-.btn-primary:hover{background:#2d3a5c}
-.btn-ghost{border-color:transparent;color:var(--muted)}
-.btn-ghost:hover{background:var(--border)}
-
-/* ── 악보 테이블 ── */
-.score{width:100%;border-collapse:collapse}
-.score thead th{
-  font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--muted);border-bottom:2px solid var(--ink);padding:.4rem .75rem .4rem 0;text-align:left}
-.col-q{width:28%}
-.col-skill{width:12%}.col-idea{width:36%}.col-write{width:24%}
-
-/* 질문 셀 — 어노테이션 존(0~1.6rem) / 텍스트 존(1.6rem~) */
-.q-cell{vertical-align:top;padding:.8rem .5rem .8rem 1.6rem;position:relative}
-.q-cell::before{content:'';position:absolute;left:1.25rem;top:.6rem;bottom:.6rem;
-  width:2px;background:var(--ink);border-radius:2px;opacity:.6}
-.q-cell::after{content:'';position:absolute;left:1.25rem;top:.6rem;
-  width:.4rem;height:2px;background:var(--ink);border-radius:2px;opacity:.6}
-
-/* 리허설 마크 */
-.rehearsal{position:absolute;left:.1rem;top:.75rem;width:1rem;height:1rem;
-  border:2px solid var(--ink);border-radius:3px;display:flex;align-items:center;
-  justify-content:center;font-size:.58rem;font-weight:900;background:#fff}
-
-/* 세뇨 */
-.segno-ref{font-size:.6rem;color:var(--muted);margin-top:.25rem;display:block}
-
-/* 질문 텍스트 */
-.q-text{display:block;font-size:.82rem;font-weight:600;line-height:1.45;
-  min-height:1.2rem;outline:none}
-.q-text:focus,.editable:focus{background:#f0f9ff;border-radius:3px;outline:2px solid #bfdbfe}
-.editable{outline:none;min-height:1.2rem;display:block}
-
-/* 데이터 셀 */
-.score td{vertical-align:top;padding:.55rem .75rem .55rem 0;border-bottom:1px solid var(--border)}
-.score tbody tr:first-child td{padding-top:.8rem}
-
-/* 행 삭제 버튼 */
-.del-row{opacity:0;background:none;border:none;cursor:pointer;color:#ef4444;
-  font-size:.8rem;padding:0 .3rem;line-height:1}
-tr:hover .del-row{opacity:.5}
-.del-row:hover{opacity:1!important}
-
-/* 스킬 태그 */
-.skill-wrap{display:flex;flex-wrap:wrap;gap:.2rem;align-items:flex-start}
-.skill{display:inline-block;background:var(--skill-bg);color:var(--skill-fg);
-  font-size:.72rem;font-weight:700;padding:.15rem .4rem;border-radius:4px;white-space:nowrap}
-
-/* 아이디어 */
-.idea-list{list-style:none}
-.idea-item{display:flex;align-items:baseline;gap:.4rem;margin-bottom:.2rem;font-size:.83rem}
-.idea-item::before{content:'○';font-size:.55rem;color:var(--muted);flex-shrink:0;margin-top:.2rem}
-
-/* 글감 */
-.writing{font-size:.8rem;color:#92400e;background:var(--writing-bg);
-  border-left:2px solid #f59e0b;padding:.18rem .5rem;border-radius:0 4px 4px 0;
-  margin-bottom:.2rem;display:block}
-.writing::before{content:'"'}.writing::after{content:'"'}
-
-/* ── 종지 행 ── */
-.cadence-row td{padding:.25rem 0 1rem .5rem;border-bottom:none}
-.cadence-btn{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;
-  padding:.2rem .7rem;border-radius:99px;cursor:pointer;transition:all .15s;background:#fff}
-.cadence-btn .sym{font-size:.95rem;font-weight:900}
-.cadence-btn[data-c="full"]      {color:var(--c-full);      border:1.5px solid var(--c-full)}
-.cadence-btn[data-c="half"]      {color:var(--c-half);      border:1.5px solid var(--c-half)}
-.cadence-btn[data-c="deceptive"] {color:var(--c-deceptive); border:1.5px solid var(--c-deceptive)}
-.cadence-btn[data-c="open"]      {color:var(--c-open);      border:1.5px solid var(--c-open)}
-.cadence-btn:hover{opacity:.75}
-
-.double-bar{display:inline-block;width:.6rem;height:1rem;border-left:1px solid var(--muted);
-  border-right:3px solid var(--muted);margin-left:.6rem;vertical-align:middle;opacity:.3}
-
-/* 질문 그룹 삭제 버튼 */
-.del-group-wrap{text-align:right;padding:.2rem .5rem}
-.del-group{opacity:0;background:none;border:none;cursor:pointer;color:#ef4444;
-  font-size:.72rem;padding:.2rem .5rem}
-tbody:hover .del-group{opacity:.4}
-.del-group:hover{opacity:1!important}
-
-/* 빈 셀 플레이스홀더 */
-[contenteditable]:empty:before{content:attr(data-ph);color:#d1d5db;pointer-events:none}
-
-/* 추가 버튼 행 */
-.add-row-cell{padding:.3rem 0 .3rem 2.4rem!important;border-bottom:none}
-.add-row-btn{background:none;border:none;cursor:pointer;color:var(--muted);
-  font-size:.72rem;padding:.2rem .4rem;border-radius:4px}
-.add-row-btn:hover{background:var(--border);color:var(--ink)}
-
-/* 범례 */
-.legend{margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--border);
-  display:flex;gap:1.2rem;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--muted)}
-
-/* 저장 상태 표시 */
-.save-status{font-size:.7rem;color:var(--muted)}
-
-/* ── 학술 타임라인 뷰 ── */
-#academic-view{display:none;max-width:860px}
-.acad-timeline{position:relative;padding-left:3.2rem}
-.acad-timeline::before{content:'';position:absolute;left:1rem;top:.4rem;bottom:0;
-  width:2px;background:var(--border)}
-.acad-entry{position:relative;margin-bottom:2.2rem}
-.acad-dot{position:absolute;left:-2.35rem;top:1rem;width:.7rem;height:.7rem;
-  border-radius:50%;background:var(--ink);border:2px solid #fafafa;
-  box-shadow:0 0 0 2px var(--ink)}
-.acad-era{font-size:.62rem;font-weight:700;letter-spacing:.1em;color:var(--muted);
-  text-transform:uppercase;margin-bottom:.25rem}
-.acad-q{font-size:.88rem;font-weight:700;color:var(--ink);line-height:1.45;
-  margin-bottom:.35rem}
-.acad-segno{font-size:.66rem;color:var(--muted);margin-bottom:.55rem;
-  display:flex;align-items:center;gap:.3rem}
-.acad-segno::before{content:'𝄋';font-size:.75rem}
-.acad-grid{display:grid;grid-template-columns:1fr 2fr 1.8fr;gap:.35rem;margin-bottom:.45rem}
-.acad-cell{border-radius:5px;padding:.35rem .55rem}
-.acad-lbl{font-size:.56rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:.18rem}
-.acad-val{font-size:.78rem;line-height:1.4;white-space:pre-line}
-.acad-skill{background:var(--skill-bg)}
-.acad-skill .acad-val{color:var(--skill-fg)}
-.acad-idea{background:#f0fdf4}
-.acad-idea .acad-val{color:#166534}
-.acad-writing{background:var(--writing-bg)}
-.acad-writing .acad-val{color:#92400e}
-/* 용어 뱃지 */
-.term{display:inline-block;background:#fff;border:1px solid #e5e7eb;
-  border-radius:4px;padding:.05rem .32rem;font-size:.72rem;margin:.05rem .1rem 0 0;
-  font-weight:600;color:var(--ink)}
-/* 종지 */
-.acad-cadence{display:inline-flex;align-items:center;gap:.3rem;
-  font-size:.7rem;font-weight:700;margin-top:.1rem}
-.acad-cadence[data-c="full"]{color:var(--c-full)}
-.acad-cadence[data-c="half"]{color:var(--c-half)}
-.acad-cadence[data-c="deceptive"]{color:var(--c-deceptive)}
-.acad-cadence[data-c="open"]{color:var(--c-open)}
-.acad-note-wrap{margin-top:.45rem}
-.acad-note{width:100%;font-size:.78rem;font-family:inherit;border:1px dashed var(--border);
-  border-radius:4px;padding:.3rem .5rem;resize:vertical;min-height:2rem;
-  background:#fafafa;color:var(--ink);outline:none}
-.acad-note:focus{border-color:#bfdbfe;background:#f0f9ff}
-.acad-note-lbl{font-size:.6rem;color:var(--muted);margin-bottom:.15rem}
-
-/* ── 날짜 / 달력 뷰 ── */
-/* 악보 뷰의 날짜 표시 (종지 행 오른쪽) */
-.entry-date{float:right;font-size:.6rem;color:var(--muted);
-  font-variant-numeric:tabular-nums;opacity:.55;margin-top:.18rem}
-
-/* 뷰 토글 버튼 */
-.view-btn{font-size:.72rem;padding:.25rem .6rem}
-.view-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-
-/* 달력(타임라인) 뷰 */
-#cal-view{display:none}
-.cal-day{margin-bottom:2.2rem}
-.cal-day-header{
-  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  border-bottom:2px solid var(--ink);padding-bottom:.3rem;margin-bottom:.65rem;
-  display:flex;align-items:baseline;gap:.5rem}
-.cal-day-header time{font-size:.8rem;color:var(--ink);font-style:normal;
-  font-variant-numeric:tabular-nums}
-.cal-day-header .day-count{font-size:.62rem;color:var(--muted);font-weight:400}
-.cal-entry{display:flex;align-items:baseline;gap:.5rem;
-  margin-bottom:.4rem;padding:.25rem .3rem;border-radius:4px}
-.cal-entry:hover{background:#f3f4f6}
-.cal-mark{width:1.2rem;height:1.2rem;border:2px solid var(--ink);border-radius:3px;
-  display:inline-flex;align-items:center;justify-content:center;
-  font-size:.58rem;font-weight:900;flex-shrink:0;background:#fff}
-.cal-q{flex:1;font-size:.82rem;font-weight:600;color:var(--ink)}
-.cal-sym{font-size:.82rem;font-weight:900;flex-shrink:0}
-.cal-sym[data-c="full"]      {color:var(--c-full)}
-.cal-sym[data-c="half"]      {color:var(--c-half)}
-.cal-sym[data-c="deceptive"] {color:var(--c-deceptive)}
-.cal-sym[data-c="open"]      {color:var(--c-open)}
-/* 달력 뷰일 때 악보 숨김 */
-body.cal-mode #score-table,body.cal-mode #add-q-btn{display:none}
-body.cal-mode #cal-view{display:block}
+  background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;
+  padding:1.2rem 2rem;border-bottom:1px solid var(--border);background:#fff}
+.logo{font-size:.82rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink)}
+.lang-btn{background:none;border:1px solid var(--border);border-radius:6px;
+  padding:.25rem .65rem;font-size:.7rem;cursor:pointer;color:var(--muted);
+  font-weight:700;letter-spacing:.05em;transition:background .12s;font-family:inherit}
+.lang-btn:hover{background:var(--border);color:var(--ink)}
+main{max-width:640px;margin:0 auto;padding:3rem 2rem}
+.hero{margin-bottom:3rem}
+.hero-title{font-size:1.4rem;font-weight:800;letter-spacing:-.01em;margin-bottom:.5rem}
+.hero-sub{font-size:.82rem;color:var(--muted);line-height:1.7}
+.section{margin-bottom:2.8rem}
+.section-lbl{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
+.section-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{display:block;text-decoration:none;background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:.6rem;
+  transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(79,70,229,.08)}
+.card-title{font-size:.88rem;font-weight:700;color:var(--ink);margin-bottom:.22rem;
+  display:flex;align-items:center;gap:.45rem}
+.card-tag{font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--accent);color:#fff;padding:.1rem .4rem;border-radius:3px}
+.card-desc{font-size:.76rem;color:var(--muted);line-height:1.55}
+footer{text-align:center;padding:2.5rem 1rem;font-size:.66rem;color:var(--muted);
+  border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
+<header>
+  <a href="/" class="logo">willfoldat</a>
+  <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+</header>
+<main>
+  <div class="hero">
+    <h1 class="hero-title" data-i18n="hero-title">스스로 배우는 도구들</h1>
+    <p class="hero-sub" data-i18n="hero-sub">질문에서 시작해서, 검증하고, 기록한다.</p>
+  </div>
 
-<div class="toolbar">
-  <h1>아이디어 악보 · Idea Score</h1>
-  <button class="btn view-btn active" id="btn-score"  onclick="setView('score')">악보</button>
-  <button class="btn view-btn"        id="btn-cal"    onclick="setView('cal')">날짜별</button>
-  <button class="btn view-btn"        id="btn-acad"   onclick="setView('acad')">학술계보</button>
-  <span class="save-status" id="save-status"></span>
-  <button class="btn btn-ghost" onclick="loadExample()">예시 보기</button>
-  <button class="btn btn-ghost" onclick="clearAll()">비우기</button>
-  <button class="btn btn-primary" onclick="exportHTML()">내보내기 ↓</button>
-</div>
+  <section class="section">
+    <div class="section-lbl" data-i18n="sec-tools">도구</div>
+    <a href="/app/" class="card">
+      <div class="card-title">
+        <span data-i18n="tool-score-title">아이디어 악보</span>
+        <span class="card-tag" data-i18n="tag-app">앱</span>
+      </div>
+      <p class="card-desc" data-i18n="tool-score-desc">질문 → 스킬 → 아이디어 → 글감 흐름을 악보처럼 기록합니다. 학술 계보 타임라인, 날짜별 보기 포함.</p>
+    </a>
+  </section>
 
-<table class="score" id="score-table">
-<thead>
-  <tr>
-    <th class="col-q"    scope="col">질문</th>
-    <th class="col-skill" scope="col">스킬</th>
-    <th class="col-idea"  scope="col">아이디어</th>
-    <th class="col-write" scope="col">글감</th>
-  </tr>
-</thead>
-</table>
-<div id="cal-view"></div>
-<div id="academic-view"></div>
-
-<button class="btn" id="add-q-btn" style="margin-top:1rem" onclick="addQuestion()">+ 질문 추가</button>
-
-<!-- 범례 -->
-<div class="legend">
-  <span class="legend-item"><span class="cadence-btn" data-c="full"  style="pointer-events:none;padding:.08rem .35rem"><span class="sym">‖</span></span>완전종지 — 완전히 답됨</span>
-  <span class="legend-item"><span class="cadence-btn" data-c="half"  style="pointer-events:none;padding:.08rem .35rem"><span class="sym">↑</span></span>반종지 — 다음으로 이어짐</span>
-  <span class="legend-item"><span class="cadence-btn" data-c="deceptive" style="pointer-events:none;padding:.08rem .35rem"><span class="sym">?→</span></span>변격종지 — 예상 밖 전환</span>
-  <span class="legend-item"><span class="cadence-btn" data-c="open"  style="pointer-events:none;padding:.08rem .35rem"><span class="sym">→</span></span>진행 중</span>
-  <span class="legend-item" style="margin-left:.5rem">[ ] 리허설 마크 &nbsp;·&nbsp; 𝄋 세뇨(이전 참조)</span>
-</div>
-
+  <section class="section">
+    <div class="section-lbl" data-i18n="sec-tips">팁</div>
+    <a href="/tips/reliability.html" class="card">
+      <div class="card-title">
+        <span data-i18n="tip2-title">내가 읽은 정보가 맞는지 어떻게 알지?</span>
+        <span class="card-tag" data-i18n="tag-new">NEW</span>
+      </div>
+      <p class="card-desc" data-i18n="tip2-desc">신뢰도 검사 스킬 — 원본 출처(certificate) 찾기, 교차 검증, NVC 관찰/평가 구분, Unfold 활용법</p>
+    </a>
+    <a href="/tips/github-pages-dns.html" class="card">
+      <div class="card-title">
+        <span data-i18n="tip1-title">내 사이트 어디에 만들지? GitHub Pages vs Vercel</span>
+      </div>
+      <p class="card-desc" data-i18n="tip1-desc">기능에 따라 플랫폼을 고르는 법 — 로그인·DB·폼 여부로 판정</p>
+    </a>
+  </section>
+</main>
+<footer>
+  <span data-i18n="footer">willfoldat · 스스로 배우는 도구들</span>
+</footer>
 <script>
-// ── 종지 순환 ──────────────────────────────────────────────
-const CADENCES = [
-  { key:'open',       sym:'→',  label:'진행 중' },
-  { key:'full',       sym:'‖',  label:'완전종지' },
-  { key:'half',       sym:'↑',  label:'반종지' },
-  { key:'deceptive',  sym:'?→', label:'변격종지' },
-];
-function nextCadence(btn) {
-  const keys = CADENCES.map(c=>c.key);
-  const cur  = btn.dataset.c;
-  const next = CADENCES[(keys.indexOf(cur)+1) % CADENCES.length];
-  btn.dataset.c = next.key;
-  btn.querySelector('.sym').textContent = next.sym;
-  btn.querySelector('.lbl').textContent = ' ' + next.label;
-  save();
-}
-
-// ── 리허설 마크 갱신 ────────────────────────────────────────
-function refreshMarks() {
-  document.querySelectorAll('.rehearsal').forEach((el, i) => {
-    el.textContent = String.fromCharCode(65 + i);
-  });
-}
-
-// ── 행 추가 ──────────────────────────────────────────────────
-function addRow(tbody) {
-  const addRowTr = tbody.querySelector('.add-row-tr');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td></td>
-    <td><div class="editable" contenteditable="true" data-ph="스킬"></div></td>
-    <td><div class="editable" contenteditable="true" data-ph="아이디어"></div></td>
-    <td>
-      <div style="display:flex;align-items:flex-start;gap:.3rem">
-        <div class="editable" contenteditable="true" data-ph="글감" style="flex:1"></div>
-        <button class="del-row" title="행 삭제" onclick="this.closest('tr').remove();save()">✕</button>
-      </div>
-    </td>`;
-  tbody.insertBefore(tr, addRowTr);
-  tr.querySelectorAll('[contenteditable]')[0].focus();
-  save();
-}
-
-// ── 질문 추가 ────────────────────────────────────────────────
-let qCount = 0;
-function addQuestion(data) {
-  qCount++;
-  const table = document.getElementById('score-table');
-  const tbody = document.createElement('tbody');
-  const d = data || {};
-  const cadence = d.cadence || CADENCES[0];
-  const today = new Date().toISOString().slice(0,10);
-  const date = d.date || today;
-  tbody.dataset.date = date;
-
-  tbody.innerHTML = `
-  <tr>
-    <td class="q-cell" rowspan="100">
-      <span class="rehearsal"></span>
-      <span class="q-text" contenteditable="true" data-ph="질문을 입력하세요">${d.q||''}</span>
-      <span class="segno-ref" contenteditable="true" data-ph="𝄋 참조 (선택)"></span>
-    </td>
-    <td><div class="editable" contenteditable="true" data-ph="스킬">${(d.rows&&d.rows[0])?d.rows[0].skill:''}</div></td>
-    <td><div class="editable" contenteditable="true" data-ph="아이디어">${(d.rows&&d.rows[0])?d.rows[0].idea:''}</div></td>
-    <td>
-      <div style="display:flex;align-items:flex-start;gap:.3rem">
-        <div class="editable" contenteditable="true" data-ph="글감" style="flex:1">${(d.rows&&d.rows[0])?d.rows[0].writing:''}</div>
-        <button class="del-row" title="행 삭제" onclick="this.closest('tr').remove();save()">✕</button>
-      </div>
-    </td>
-  </tr>
-  <tr class="add-row-tr">
-    <td class="add-row-cell" colspan="3">
-      <button class="add-row-btn" onclick="addRow(this.closest('tbody'))">+ 행 추가</button>
-    </td>
-  </tr>
-  <tr class="cadence-row">
-    <td colspan="3">
-      <button class="cadence-btn" data-c="${cadence.key}" onclick="nextCadence(this)">
-        <span class="sym">${cadence.sym}</span><span class="lbl"> ${cadence.label}</span>
-      </button>
-      <span class="double-bar"></span>
-      <button class="del-group btn btn-ghost" style="font-size:.68rem;margin-left:.5rem"
-        onclick="this.closest('tbody').remove();refreshMarks();save()">그룹 삭제</button>
-      <time class="entry-date" datetime="${date}">${date}</time>
-    </td>
-  </tr>`;
-
-  // 추가 데이터 행
-  if (d.rows && d.rows.length > 1) {
-    const addRowTr = tbody.querySelector('.add-row-tr');
-    d.rows.slice(1).forEach(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td></td>
-        <td><div class="editable" contenteditable="true" data-ph="스킬">${r.skill||''}</div></td>
-        <td><div class="editable" contenteditable="true" data-ph="아이디어">${r.idea||''}</div></td>
-        <td>
-          <div style="display:flex;align-items:flex-start;gap:.3rem">
-            <div class="editable" contenteditable="true" data-ph="글감" style="flex:1">${r.writing||''}</div>
-            <button class="del-row" title="행 삭제" onclick="this.closest('tr').remove();save()">✕</button>
-          </div>
-        </td>`;
-      tbody.insertBefore(tr, addRowTr);
-    });
+const I18N = {
+  ko: {
+    'hero-title':'스스로 배우는 도구들',
+    'hero-sub':'질문에서 시작해서, 검증하고, 기록한다.',
+    'sec-tools':'도구','sec-tips':'팁',
+    'tag-app':'앱','tag-new':'NEW',
+    'tool-score-title':'아이디어 악보',
+    'tool-score-desc':'질문 → 스킬 → 아이디어 → 글감 흐름을 악보처럼 기록합니다. 학술 계보 타임라인, 날짜별 보기 포함.',
+    'tip2-title':'내가 읽은 정보가 맞는지 어떻게 알지?',
+    'tip2-desc':'신뢰도 검사 스킬 — 원본 출처(certificate) 찾기, 교차 검증, NVC 관찰/평가 구분, Unfold 활용법',
+    'tip1-title':'내 사이트 어디에 만들지? GitHub Pages vs Vercel',
+    'tip1-desc':'기능에 따라 플랫폼을 고르는 법 — 로그인·DB·폼 여부로 판정',
+    'footer':'willfoldat · 스스로 배우는 도구들',
+  },
+  en: {
+    'hero-title':'Tools for self-directed learning',
+    'hero-sub':'Start with a question. Verify. Record.',
+    'sec-tools':'Tools','sec-tips':'Tips',
+    'tag-app':'App','tag-new':'NEW',
+    'tool-score-title':'Idea Score',
+    'tool-score-desc':'Record question → skill → idea → writing flows like a musical score. Includes academic genealogy timeline and calendar view.',
+    'tip2-title':'How do I verify what I read?',
+    'tip2-desc':'Reliability check skill — finding primary sources (certificates), cross-verification, NVC observation/evaluation distinction, using Unfold',
+    'tip1-title':'Where should I host my site? GitHub Pages vs Vercel',
+    'tip1-desc':'How to choose a platform by feature — login, DB, and forms as decision criteria',
+    'footer':'willfoldat · tools for self-directed learning',
   }
-
-  table.appendChild(tbody);
-  refreshMarks();
-
-  // 자동 저장 훅
-  tbody.addEventListener('input', debounce(save, 600));
-  if (!data) {
-    tbody.querySelector('.q-text').focus();
-    save();
-  }
+};
+let LANG = localStorage.getItem('wf-lang') || 'ko';
+function T(k) { return (I18N[LANG]||I18N.ko)[k] || I18N.ko[k] || k; }
+function setLang(l) {
+  LANG = l;
+  localStorage.setItem('wf-lang', l);
+  document.documentElement.lang = l;
+  document.getElementById('lang-btn').textContent = l === 'ko' ? 'EN' : '한';
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = T(el.dataset.i18n));
 }
-
-// ── 저장 ─────────────────────────────────────────────────────
-function getState() {
-  const groups = [];
-  document.querySelectorAll('#score-table tbody').forEach(tb => {
-    const qEl  = tb.querySelector('.q-text');
-    const cBtn = tb.querySelector('.cadence-btn');
-    if (!qEl) return;
-    const rows = [];
-    tb.querySelectorAll('tr:not(.cadence-row):not(.add-row-tr)').forEach(tr => {
-      const cells = tr.querySelectorAll('td');
-      if (cells.length < 3) return;
-      rows.push({
-        skill:   cells[1]?.querySelector('.editable')?.innerText.trim()||'',
-        idea:    cells[2]?.querySelector('.editable')?.innerText.trim()||'',
-        writing: cells[3]?.querySelector('.editable')?.innerText.trim()||'',
-      });
-    });
-    groups.push({
-      q:       qEl.innerText.trim(),
-      date:    tb.dataset.date || new Date().toISOString().slice(0,10),
-      cadence: cBtn ? { key: cBtn.dataset.c,
-                        sym: cBtn.querySelector('.sym').textContent,
-                        label: cBtn.querySelector('.lbl').textContent.trim() } : CADENCES[0],
-      rows,
-    });
-  });
-  return groups;
-}
-
-function save() {
-  try {
-    localStorage.setItem('idea-score', JSON.stringify(getState()));
-    const s = document.getElementById('save-status');
-    s.textContent = '저장됨 ' + new Date().toLocaleTimeString();
-  } catch(e) {}
-}
-
-function load(data) {
-  // 기존 tbody 제거
-  document.querySelectorAll('#score-table tbody').forEach(tb => tb.remove());
-  qCount = 0;
-  if (data && data.length) data.forEach(d => addQuestion(d));
-  else addQuestion();
-}
-
-function clearAll() {
-  if (!confirm('모두 지울까요?')) return;
-  localStorage.removeItem('idea-score');
-  load(null);
-}
-
-// ── 예시 데이터 ──────────────────────────────────────────────
-function loadExample() {
-  const ex = [
-    { q:'히스토그램 봉우리 = 어트랙터? P≠NP 문제잖아?',
-      cadence: { key:'full', sym:'‖', label:'완전종지' },
-      rows:[
-        { skill:'/ball  /patternfold', idea:'단봉 = 볼록 최적화 = P\n다봉 = 비볼록 최적화 = NP-hard', writing:'자연이 NP-hard를 물리 법칙으로 공짜로 푼다' },
-        { skill:'문병로 PDF', idea:'Turing 반응-확산이 다봉 지형 생성', writing:'' },
-        { skill:'', idea:'구형균형 ↔ Unfold 양방향 Fold', writing:'' },
-      ]},
-    { q:'갈루아+칸토어+리만 조합 — 논리·공간·표현의 관계?',
-      cadence: { key:'half', sym:'↑', label:'반종지' },
-      rows:[
-        { skill:'/patternfold', idea:'논리 = 공간 = 표현 (같은 것의 세 언어)', writing:'같은 작전을 반복한 수학자들' },
-        { skill:'수학사', idea:'갈루아: 문제 정의를 L1→L3로 변환\nP≠NP = 그 새 언어를 아직 모른다', writing:'P≠NP가 요구하는 것' },
-      ]},
-    { q:'비본문(재정now) 접기 + nav와 본문 동시보기?',
-      cadence: { key:'full', sym:'‖', label:'완전종지' },
-      rows:[
-        { skill:'details/summary', idea:'표/이미지 없는 섹션 = secondary (자동 접힘)\n전체 접기 → main = 목록, sidebar = nav', writing:'' },
-      ]},
-    { q:'한 일 기록: 질문 → 스킬 → 아이디어 → 글감, 범위는?',
-      cadence: { key:'open', sym:'→', label:'진행 중' },
-      rows:[
-        { skill:'악보 기보법', idea:'이음줄(슬러) = 질문 범위\n종지 = 해소 정도', writing:'악보를 읽듯 아이디어를 읽는다' },
-        { skill:'/om', idea:'아이디어가 중간인 이유 = 중성부\n세뇨 = 이전 질문 맥락 참조', writing:'' },
-      ]},
-  ];
-  load(ex);
-}
-
-// ── 내보내기 ─────────────────────────────────────────────────
-function exportHTML() {
-  const clone = document.documentElement.cloneNode(true);
-  // 편집 불가 버전으로 변환
-  clone.querySelectorAll('[contenteditable]').forEach(el => {
-    el.removeAttribute('contenteditable');
-  });
-  clone.querySelectorAll('.toolbar').forEach(el => el.remove());
-  clone.querySelectorAll('.del-row,.del-group,.add-row-btn,.add-row-tr').forEach(el=>el.remove());
-  const blob = new Blob(['<!DOCTYPE html>\n'+clone.outerHTML], {type:'text/html'});
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(blob),
-    download: 'idea-score-' + new Date().toISOString().slice(0,10) + '.html'
-  });
-  a.click();
-}
-
-// ── 학술 계보 데이터 ──────────────────────────────────────────
-const ACADEMIC_SCORE = [
-  { era:'BC 300', field:'수학',
-    q:'평행선은 결코 만나지 않는가?\n공간 자체의 성질은 무엇인가?',
-    segno:'플라톤 기하학',
-    cadence:{key:'half',sym:'↑',label:'반종지 — 비유클리드 기하학으로'},
-    rows:[
-      { skill:'공리 체계 (가정→정리)', idea:'5번 공리가 나머지와 독립적\n→ 공리를 바꾸면 다른 기하 가능', writing:'"공리" · "정리" · "증명"\n[비유클리드 기하]' },
-    ]},
-  { era:'1666', field:'물리',
-    q:'사과는 왜 떨어지는가?\n달은 왜 안 떨어지는가?',
-    segno:'갈릴레오 자유낙하 실험',
-    cadence:{key:'half',sym:'↑',label:'반종지 — 아인슈타인으로'},
-    rows:[
-      { skill:'미적분 (뉴턴이 직접 발명)\n접선·넓이 계산 도구 필요', idea:'사과와 달에 같은 힘이 작용\n→ 하늘과 땅은 같은 법칙', writing:'"만유인력" · "F=ma" · "미적분"' },
-    ]},
-  { era:'1832', field:'수학',
-    q:'5차 이상 방정식은 왜\n근의 공식으로 풀 수 없는가?',
-    segno:'라그랑주 치환군 (1771)',
-    cadence:{key:'full',sym:'‖',label:'완전종지 — 추상대수학 탄생'},
-    rows:[
-      { skill:'방정식 근들의 대칭 분석\n("근을 섞으면 어떻게 변하나?")', idea:'풀이 가능성 ↔ 군의 구조\n문제를 직접 풀지 말고 구조를 봐라', writing:'"군(group)" · "체(field)" · "갈루아 군"' },
-      { skill:'', idea:'갈루아 혁신: 문제 정의 자체를 바꿈\n(L1 풀이법 → L3 구조 분석)', writing:'현대 추상대수학 전체의 씨앗' },
-    ]},
-  { era:'1865', field:'물리',
-    q:'전기와 자기는 별개인가?\n빛은 무엇인가?',
-    segno:'패러데이 전자기 유도 (1831)',
-    cadence:{key:'half',sym:'↑',label:'반종지 — 아인슈타인 특수상대성으로'},
-    rows:[
-      { skill:'벡터 미분 (∇ 연산자 개발)', idea:'전기·자기·빛 = 하나의 장(場)\n광속 c를 방정식에서 예측', writing:'"전자기장" · "맥스웰 방정식" · 광속 c' },
-    ]},
-  { era:'1877', field:'물리',
-    q:'열은 무엇인가?\n왜 열은 한 방향으로만 흐르는가?',
-    segno:'카르노 열기관 (1824)',
-    cadence:{key:'full',sym:'‖',label:'완전종지 — 통계역학 확립'},
-    rows:[
-      { skill:'확률론 + 원자론 결합', idea:'열 = 분자 운동의 통계적 평균\n엔트로피 = 가능한 배열의 수(무질서도)', writing:'"엔트로피" · "S = k·log W" · 통계역학' },
-    ]},
-  { era:'1905', field:'물리',
-    q:'광속이 관측자에 무관하다면\n뉴턴역학과 맥스웰은 어떻게 공존하는가?',
-    segno:'로런츠 변환 (1904) · 마이컬슨-몰리 실험 (1887)',
-    cadence:{key:'half',sym:'↑',label:'반종지 — 일반상대성 (1915)으로'},
-    rows:[
-      { skill:'로런츠 변환\n좌표계 변환 수학', idea:'시간과 공간은 분리되지 않는다\n질량 = 에너지 (E=mc²)', writing:'"시공간(spacetime)" · "E=mc²" · "시간 팽창"' },
-      { skill:'', idea:'→ 일반상대성: 중력 = 시공간 곡률\n→ 등가원리, 중력파 예측', writing:'"등가원리" · "블랙홀" · "중력파"' },
-    ]},
-  { era:'1931', field:'수학',
-    q:'수학은 자기 자신의 완전성을\n증명할 수 있는가?',
-    segno:'힐베르트 형식화 프로그램 (1920s)',
-    cadence:{key:'deceptive',sym:'?→',label:'변격종지 — 예상을 완전히 뒤집음'},
-    rows:[
-      { skill:'형식 체계 + 자기 지시\n(대각선 논법: "이 명제는 거짓이다")', idea:'충분히 강한 체계는 자신의\n무모순성을 증명할 수 없다', writing:'"불완전성 정리" · "형식 체계" · "괴델 수"' },
-    ]},
-  { era:'1936', field:'컴퓨터과학',
-    q:'계산 가능하다는 것은 무엇인가?\n모든 수학 문제는 기계로 풀 수 있는가?',
-    segno:'괴델 불완전성 (1931)',
-    cadence:{key:'half',sym:'↑',label:'반종지 — P≠NP 문제 (1971~)로'},
-    rows:[
-      { skill:'가상의 기계 모델\n(무한 테이프 + 규칙표)', idea:'계산 가능성에는 한계가 있다\n정지 문제는 풀 수 없다', writing:'"알고리즘" · "튜링 기계" · "계산 복잡도"' },
-      { skill:'', idea:'→ P≠NP: 답을 검증하는 것과\n처음 찾는 것은 같은 난이도인가?', writing:'"NP-완전" · "다항 시간" · "환원"' },
-    ]},
-  { era:'1948', field:'정보이론',
-    q:'"정보의 양"을 측정할 수 있는가?\n노이즈 채널에서 완벽한 전달이 가능한가?',
-    segno:'볼츠만 엔트로피 (1877) · 나이퀴스트 (1924)',
-    cadence:{key:'full',sym:'‖',label:'완전종지 — 디지털 혁명의 수학적 기반'},
-    rows:[
-      { skill:'확률론 + 볼츠만 엔트로피 유추\n("정보 = 불확실성")', idea:'정보 = 불확실성 감소량\n채널 용량 정리: 한계가 있지만 도달 가능', writing:'"bit" · "정보 엔트로피" · "채널 용량" · "압축"' },
-    ]},
-];
-
-// 학술 뷰 렌더
-function renderAcademicView() {
-  const FIELD_COLOR = { '수학':'#eef2ff', '물리':'#eff6ff', '컴퓨터과학':'#f0fdf4', '정보이론':'#fffbeb' };
-  const saved = JSON.parse(localStorage.getItem('acad-notes')||'{}');
-
-  const html = `<div class="acad-timeline">${ACADEMIC_SCORE.map((e,i) => {
-    const rows = e.rows.map(r => `
-      <div class="acad-grid">
-        <div class="acad-cell acad-skill"><div class="acad-lbl">도구·스킬</div><div class="acad-val">${escHtml(r.skill)}</div></div>
-        <div class="acad-cell acad-idea"><div class="acad-lbl">발견·아이디어</div><div class="acad-val">${escHtml(r.idea)}</div></div>
-        <div class="acad-cell acad-writing"><div class="acad-lbl">생산된 용어·글감</div><div class="acad-val">${
-          r.writing.split('·').map(t => `<span class="term">${escHtml(t.trim())}</span>`).join(' ')
-        }</div></div>
-      </div>`).join('');
-    const noteKey = `acad-${i}`;
-    const noteVal = saved[noteKey] || '';
-    return `<div class="acad-entry">
-      <div class="acad-dot"></div>
-      <div class="acad-era" style="background:${FIELD_COLOR[e.field]||'#f3f4f6'};display:inline-block;padding:.05rem .45rem;border-radius:3px;margin-bottom:.3rem">${e.era} &nbsp;·&nbsp; ${e.field}</div>
-      <div class="acad-q">${escHtml(e.q)}</div>
-      <div class="acad-segno">${escHtml(e.segno)}</div>
-      ${rows}
-      <div class="acad-cadence" data-c="${e.cadence.key}">${e.cadence.sym} &nbsp;${escHtml(e.cadence.label)}</div>
-      <div class="acad-note-wrap">
-        <div class="acad-note-lbl">내 메모 (저장됨)</div>
-        <textarea class="acad-note" data-key="${noteKey}" placeholder="이 개념에 대한 내 이해, 연결되는 질문, 참고할 책...">${escHtml(noteVal)}</textarea>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
-
-  const el = document.getElementById('academic-view');
-  el.innerHTML = html;
-  el.querySelectorAll('.acad-note').forEach(ta => {
-    ta.addEventListener('input', debounce(() => {
-      const notes = JSON.parse(localStorage.getItem('acad-notes')||'{}');
-      notes[ta.dataset.key] = ta.value;
-      localStorage.setItem('acad-notes', JSON.stringify(notes));
-    }, 600));
-  });
-}
-
-// ── 뷰 전환 (악보 ↔ 날짜별 ↔ 학술) ──────────────────────────
-function setView(v) {
-  const modes = { score: false, cal: false, acad: false };
-  modes[v] = true;
-  document.body.classList.toggle('cal-mode', modes.cal || modes.acad);
-  document.getElementById('score-table').style.display = (modes.cal || modes.acad) ? 'none' : '';
-  document.getElementById('add-q-btn').style.display  = (modes.cal || modes.acad) ? 'none' : '';
-  document.getElementById('cal-view').style.display       = modes.cal  ? 'block' : 'none';
-  document.getElementById('academic-view').style.display  = modes.acad ? 'block' : 'none';
-  ['score','cal','acad'].forEach(id => {
-    document.getElementById('btn-'+id)?.classList.toggle('active', modes[id]);
-  });
-  if (modes.cal)  renderCalView();
-  if (modes.acad) renderAcademicView();
-}
-
-function renderCalView() {
-  const marks = [...document.querySelectorAll('.rehearsal')].map(r => r.textContent);
-  const byDate = {};
-  document.querySelectorAll('#score-table tbody').forEach((tb, i) => {
-    const date = tb.dataset.date || new Date().toISOString().slice(0,10);
-    const qEl  = tb.querySelector('.q-text');
-    const cBtn = tb.querySelector('.cadence-btn');
-    if (!byDate[date]) byDate[date] = [];
-    byDate[date].push({
-      mark: marks[i] || String.fromCharCode(65 + i),
-      q:    qEl?.innerText.trim() || '',
-      key:  cBtn?.dataset.c || 'open',
-      sym:  cBtn?.querySelector('.sym').textContent || '→',
-    });
-  });
-
-  const sorted = Object.keys(byDate).sort().reverse();
-  const calEl  = document.getElementById('cal-view');
-  calEl.innerHTML = sorted.length ? sorted.map(date => {
-    const entries = byDate[date];
-    const label   = new Date(date + 'T00:00:00').toLocaleDateString('ko-KR',
-      { year:'numeric', month:'long', day:'numeric', weekday:'short' });
-    return `<div class="cal-day">
-      <div class="cal-day-header">
-        <time datetime="${date}">${label}</time>
-        <span class="day-count">— ${entries.length}개 질문</span>
-      </div>
-      ${entries.map(e => `<div class="cal-entry">
-        <span class="cal-mark">${e.mark}</span>
-        <span class="cal-q">${escHtml(e.q) || '<em style="opacity:.4">질문 없음</em>'}</span>
-        <span class="cal-sym" data-c="${e.key}">${e.sym}</span>
-      </div>`).join('')}
-    </div>`;
-  }).join('') : '<p style="color:#9ca3af;font-size:.82rem">질문이 없습니다.</p>';
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function debounce(fn, ms) {
-  let t; return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
-}
-
-// ── 초기화 ───────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('idea-score');
-  if (saved) {
-    try { load(JSON.parse(saved)); return; } catch(e) {}
-  }
-  // 비어있는 상태로 시작
-  addQuestion();
-});
+function toggleLang() { setLang(LANG === 'ko' ? 'en' : 'ko'); }
+document.addEventListener('DOMContentLoaded', () => setLang(LANG));
 </script>
 </body>
 </html>
