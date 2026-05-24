@@ -31,29 +31,26 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif
 .score thead th{
   font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   color:var(--muted);border-bottom:2px solid var(--ink);padding:.4rem .75rem .4rem 0;text-align:left}
-.col-q{width:22%;padding-left:2.4rem!important}
-.col-skill{width:14%}.col-idea{width:38%}.col-write{width:26%}
+.col-q{width:28%}
+.col-skill{width:12%}.col-idea{width:36%}.col-write{width:24%}
 
-/* 질문 셀 슬러 — 편집디자인: 마진존(0~2.4rem) / 콘텐츠존(2.4rem~) */
-.q-cell{vertical-align:top;padding:.8rem .75rem .8rem 2.4rem;position:relative}
-/* 슬러 수직선: 마진존 안쪽 오른쪽 경계 역할 */
-.q-cell::before{content:'';position:absolute;left:1.75rem;top:.6rem;bottom:.6rem;
-  width:2px;background:var(--ink);border-radius:2px;opacity:.7}
-/* 슬러 상단 노치 */
-.q-cell::after{content:'';position:absolute;left:1.75rem;top:.6rem;
-  width:.55rem;height:2px;background:var(--ink);border-radius:2px;opacity:.7}
+/* 질문 셀 — 어노테이션 존(0~1.6rem) / 텍스트 존(1.6rem~) */
+.q-cell{vertical-align:top;padding:.8rem .5rem .8rem 1.6rem;position:relative}
+.q-cell::before{content:'';position:absolute;left:1.25rem;top:.6rem;bottom:.6rem;
+  width:2px;background:var(--ink);border-radius:2px;opacity:.6}
+.q-cell::after{content:'';position:absolute;left:1.25rem;top:.6rem;
+  width:.4rem;height:2px;background:var(--ink);border-radius:2px;opacity:.6}
 
-/* 리허설 마크: 마진존 왼쪽 고정 */
-.rehearsal{position:absolute;left:.1rem;top:.75rem;width:1.35rem;height:1.35rem;
+/* 리허설 마크 */
+.rehearsal{position:absolute;left:.1rem;top:.75rem;width:1rem;height:1rem;
   border:2px solid var(--ink);border-radius:3px;display:flex;align-items:center;
-  justify-content:center;font-size:.6rem;font-weight:900;background:#fff;
-  letter-spacing:0}
+  justify-content:center;font-size:.58rem;font-weight:900;background:#fff}
 
 /* 세뇨 */
-.segno-ref{font-size:.62rem;color:var(--muted);margin-top:.3rem;display:block;padding-left:.2rem}
+.segno-ref{font-size:.6rem;color:var(--muted);margin-top:.25rem;display:block}
 
-/* 질문 텍스트: 콘텐츠존 안에서 작은 내부 여백만 */
-.q-text{display:block;padding-left:.2rem;font-size:.82rem;font-weight:600;line-height:1.4;
+/* 질문 텍스트 */
+.q-text{display:block;font-size:.82rem;font-weight:600;line-height:1.45;
   min-height:1.2rem;outline:none}
 .q-text:focus,.editable:focus{background:#f0f9ff;border-radius:3px;outline:2px solid #bfdbfe}
 .editable{outline:none;min-height:1.2rem;display:block}
@@ -122,6 +119,51 @@ tbody:hover .del-group{opacity:.4}
 /* 저장 상태 표시 */
 .save-status{font-size:.7rem;color:var(--muted)}
 
+/* ── 학술 타임라인 뷰 ── */
+#academic-view{display:none;max-width:860px}
+.acad-timeline{position:relative;padding-left:3.2rem}
+.acad-timeline::before{content:'';position:absolute;left:1rem;top:.4rem;bottom:0;
+  width:2px;background:var(--border)}
+.acad-entry{position:relative;margin-bottom:2.2rem}
+.acad-dot{position:absolute;left:-2.35rem;top:1rem;width:.7rem;height:.7rem;
+  border-radius:50%;background:var(--ink);border:2px solid #fafafa;
+  box-shadow:0 0 0 2px var(--ink)}
+.acad-era{font-size:.62rem;font-weight:700;letter-spacing:.1em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:.25rem}
+.acad-q{font-size:.88rem;font-weight:700;color:var(--ink);line-height:1.45;
+  margin-bottom:.35rem}
+.acad-segno{font-size:.66rem;color:var(--muted);margin-bottom:.55rem;
+  display:flex;align-items:center;gap:.3rem}
+.acad-segno::before{content:'𝄋';font-size:.75rem}
+.acad-grid{display:grid;grid-template-columns:1fr 2fr 1.8fr;gap:.35rem;margin-bottom:.45rem}
+.acad-cell{border-radius:5px;padding:.35rem .55rem}
+.acad-lbl{font-size:.56rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.18rem}
+.acad-val{font-size:.78rem;line-height:1.4;white-space:pre-line}
+.acad-skill{background:var(--skill-bg)}
+.acad-skill .acad-val{color:var(--skill-fg)}
+.acad-idea{background:#f0fdf4}
+.acad-idea .acad-val{color:#166534}
+.acad-writing{background:var(--writing-bg)}
+.acad-writing .acad-val{color:#92400e}
+/* 용어 뱃지 */
+.term{display:inline-block;background:#fff;border:1px solid #e5e7eb;
+  border-radius:4px;padding:.05rem .32rem;font-size:.72rem;margin:.05rem .1rem 0 0;
+  font-weight:600;color:var(--ink)}
+/* 종지 */
+.acad-cadence{display:inline-flex;align-items:center;gap:.3rem;
+  font-size:.7rem;font-weight:700;margin-top:.1rem}
+.acad-cadence[data-c="full"]{color:var(--c-full)}
+.acad-cadence[data-c="half"]{color:var(--c-half)}
+.acad-cadence[data-c="deceptive"]{color:var(--c-deceptive)}
+.acad-cadence[data-c="open"]{color:var(--c-open)}
+.acad-note-wrap{margin-top:.45rem}
+.acad-note{width:100%;font-size:.78rem;font-family:inherit;border:1px dashed var(--border);
+  border-radius:4px;padding:.3rem .5rem;resize:vertical;min-height:2rem;
+  background:#fafafa;color:var(--ink);outline:none}
+.acad-note:focus{border-color:#bfdbfe;background:#f0f9ff}
+.acad-note-lbl{font-size:.6rem;color:var(--muted);margin-bottom:.15rem}
+
 /* ── 날짜 / 달력 뷰 ── */
 /* 악보 뷰의 날짜 표시 (종지 행 오른쪽) */
 .entry-date{float:right;font-size:.6rem;color:var(--muted);
@@ -162,8 +204,9 @@ body.cal-mode #cal-view{display:block}
 
 <div class="toolbar">
   <h1>아이디어 악보 · Idea Score</h1>
-  <button class="btn view-btn active" id="btn-score" onclick="setView('score')">악보</button>
-  <button class="btn view-btn"        id="btn-cal"   onclick="setView('cal')">날짜별</button>
+  <button class="btn view-btn active" id="btn-score"  onclick="setView('score')">악보</button>
+  <button class="btn view-btn"        id="btn-cal"    onclick="setView('cal')">날짜별</button>
+  <button class="btn view-btn"        id="btn-acad"   onclick="setView('acad')">학술계보</button>
   <span class="save-status" id="save-status"></span>
   <button class="btn btn-ghost" onclick="loadExample()">예시 보기</button>
   <button class="btn btn-ghost" onclick="clearAll()">비우기</button>
@@ -181,6 +224,7 @@ body.cal-mode #cal-view{display:block}
 </thead>
 </table>
 <div id="cal-view"></div>
+<div id="academic-view"></div>
 
 <button class="btn" id="add-q-btn" style="margin-top:1rem" onclick="addQuestion()">+ 질문 추가</button>
 
@@ -218,7 +262,7 @@ function refreshMarks() {
   });
 }
 
-// ── 행 추가 ──��──────────────────────────────────────────────
+// ── 행 추가 ──────────────────────────────────────────────────
 function addRow(tbody) {
   const addRowTr = tbody.querySelector('.add-row-tr');
   const tr = document.createElement('tr');
@@ -237,7 +281,7 @@ function addRow(tbody) {
   save();
 }
 
-// ── 질문 추가 ──────────────────���─────────────────────────────
+// ── 질문 추가 ────────────────────────────────────────────────
 let qCount = 0;
 function addQuestion(data) {
   qCount++;
@@ -261,7 +305,7 @@ function addQuestion(data) {
     <td>
       <div style="display:flex;align-items:flex-start;gap:.3rem">
         <div class="editable" contenteditable="true" data-ph="글감" style="flex:1">${(d.rows&&d.rows[0])?d.rows[0].writing:''}</div>
-        <button class="del-row" title="행 ��제" onclick="this.closest('tr').remove();save()">���</button>
+        <button class="del-row" title="행 삭제" onclick="this.closest('tr').remove();save()">✕</button>
       </div>
     </td>
   </tr>
@@ -294,7 +338,7 @@ function addQuestion(data) {
         <td>
           <div style="display:flex;align-items:flex-start;gap:.3rem">
             <div class="editable" contenteditable="true" data-ph="글감" style="flex:1">${r.writing||''}</div>
-            <button class="del-row" title="행 ���제" onclick="this.closest('tr').remove();save()">✕</button>
+            <button class="del-row" title="행 삭제" onclick="this.closest('tr').remove();save()">✕</button>
           </div>
         </td>`;
       tbody.insertBefore(tr, addRowTr);
@@ -312,7 +356,7 @@ function addQuestion(data) {
   }
 }
 
-// ── 저장 ────────────────────────────────���───────────────────
+// ── 저장 ─────────────────────────────────────────────────────
 function getState() {
   const groups = [];
   document.querySelectorAll('#score-table tbody').forEach(tb => {
@@ -377,7 +421,7 @@ function loadExample() {
       cadence: { key:'half', sym:'↑', label:'반종지' },
       rows:[
         { skill:'/patternfold', idea:'논리 = 공간 = 표현 (같은 것의 세 언어)', writing:'같은 작전을 반복한 수학자들' },
-        { skill:'��학사', idea:'갈루아: 문제 정의를 L1→L3로 변환\nP≠NP = 그 새 언어를 아직 모른다', writing:'P≠NP가 요구하는 것' },
+        { skill:'수학사', idea:'갈루아: 문제 정의를 L1→L3로 변환\nP≠NP = 그 새 언어를 아직 모른다', writing:'P≠NP가 요구하는 것' },
       ]},
     { q:'비본문(재정now) 접기 + nav와 본문 동시보기?',
       cadence: { key:'full', sym:'‖', label:'완전종지' },
@@ -394,7 +438,7 @@ function loadExample() {
   load(ex);
 }
 
-// ── 내보내기 ───────────────────────────────────��─────────────
+// ── 내보내기 ─────────────────────────────────────────────────
 function exportHTML() {
   const clone = document.documentElement.cloneNode(true);
   // 편집 불가 버전으로 변환
@@ -411,13 +455,131 @@ function exportHTML() {
   a.click();
 }
 
-// ── 뷰 전환 (악보 ↔ 날짜별) ──────────────────────────────────
+// ── 학술 계보 데이터 ──────────────────────────────────────────
+const ACADEMIC_SCORE = [
+  { era:'BC 300', field:'수학',
+    q:'평행선은 결코 만나지 않는가?\n공간 자체의 성질은 무엇인가?',
+    segno:'플라톤 기하학',
+    cadence:{key:'half',sym:'↑',label:'반종지 — 비유클리드 기하학으로'},
+    rows:[
+      { skill:'공리 체계 (가정→정리)', idea:'5번 공리가 나머지와 독립적\n→ 공리를 바꾸면 다른 기하 가능', writing:'"공리" · "정리" · "증명"\n[비유클리드 기하]' },
+    ]},
+  { era:'1666', field:'물리',
+    q:'사과는 왜 떨어지는가?\n달은 왜 안 떨어지는가?',
+    segno:'갈릴레오 자유낙하 실험',
+    cadence:{key:'half',sym:'↑',label:'반종지 — 아인슈타인으로'},
+    rows:[
+      { skill:'미적분 (뉴턴이 직접 발명)\n접선·넓이 계산 도구 필요', idea:'사과와 달에 같은 힘이 작용\n→ 하늘과 땅은 같은 법칙', writing:'"만유인력" · "F=ma" · "미적분"' },
+    ]},
+  { era:'1832', field:'수학',
+    q:'5차 이상 방정식은 왜\n근의 공식으로 풀 수 없는가?',
+    segno:'라그랑주 치환군 (1771)',
+    cadence:{key:'full',sym:'‖',label:'완전종지 — 추상대수학 탄생'},
+    rows:[
+      { skill:'방정식 근들의 대칭 분석\n("근을 섞으면 어떻게 변하나?")', idea:'풀이 가능성 ↔ 군의 구조\n문제를 직접 풀지 말고 구조를 봐라', writing:'"군(group)" · "체(field)" · "갈루아 군"' },
+      { skill:'', idea:'갈루아 혁신: 문제 정의 자체를 바꿈\n(L1 풀이법 → L3 구조 분석)', writing:'현대 추상대수학 전체의 씨앗' },
+    ]},
+  { era:'1865', field:'물리',
+    q:'전기와 자기는 별개인가?\n빛은 무엇인가?',
+    segno:'패러데이 전자기 유도 (1831)',
+    cadence:{key:'half',sym:'↑',label:'반종지 — 아인슈타인 특수상대성으로'},
+    rows:[
+      { skill:'벡터 미분 (∇ 연산자 개발)', idea:'전기·자기·빛 = 하나의 장(場)\n광속 c를 방정식에서 예측', writing:'"전자기장" · "맥스웰 방정식" · 광속 c' },
+    ]},
+  { era:'1877', field:'물리',
+    q:'열은 무엇인가?\n왜 열은 한 방향으로만 흐르는가?',
+    segno:'카르노 열기관 (1824)',
+    cadence:{key:'full',sym:'‖',label:'완전종지 — 통계역학 확립'},
+    rows:[
+      { skill:'확률론 + 원자론 결합', idea:'열 = 분자 운동의 통계적 평균\n엔트로피 = 가능한 배열의 수(무질서도)', writing:'"엔트로피" · "S = k·log W" · 통계역학' },
+    ]},
+  { era:'1905', field:'물리',
+    q:'광속이 관측자에 무관하다면\n뉴턴역학과 맥스웰은 어떻게 공존하는가?',
+    segno:'로런츠 변환 (1904) · 마이컬슨-몰리 실험 (1887)',
+    cadence:{key:'half',sym:'↑',label:'반종지 — 일반상대성 (1915)으로'},
+    rows:[
+      { skill:'로런츠 변환\n좌표계 변환 수학', idea:'시간과 공간은 분리되지 않는다\n질량 = 에너지 (E=mc²)', writing:'"시공간(spacetime)" · "E=mc²" · "시간 팽창"' },
+      { skill:'', idea:'→ 일반상대성: 중력 = 시공간 곡률\n→ 등가원리, 중력파 예측', writing:'"등가원리" · "블랙홀" · "중력파"' },
+    ]},
+  { era:'1931', field:'수학',
+    q:'수학은 자기 자신의 완전성을\n증명할 수 있는가?',
+    segno:'힐베르트 형식화 프로그램 (1920s)',
+    cadence:{key:'deceptive',sym:'?→',label:'변격종지 — 예상을 완전히 뒤집음'},
+    rows:[
+      { skill:'형식 체계 + 자기 지시\n(대각선 논법: "이 명제는 거짓이다")', idea:'충분히 강한 체계는 자신의\n무모순성을 증명할 수 없다', writing:'"불완전성 정리" · "형식 체계" · "괴델 수"' },
+    ]},
+  { era:'1936', field:'컴퓨터과학',
+    q:'계산 가능하다는 것은 무엇인가?\n모든 수학 문제는 기계로 풀 수 있는가?',
+    segno:'괴델 불완전성 (1931)',
+    cadence:{key:'half',sym:'↑',label:'반종지 — P≠NP 문제 (1971~)로'},
+    rows:[
+      { skill:'가상의 기계 모델\n(무한 테이프 + 규칙표)', idea:'계산 가능성에는 한계가 있다\n정지 문제는 풀 수 없다', writing:'"알고리즘" · "튜링 기계" · "계산 복잡도"' },
+      { skill:'', idea:'→ P≠NP: 답을 검증하는 것과\n처음 찾는 것은 같은 난이도인가?', writing:'"NP-완전" · "다항 시간" · "환원"' },
+    ]},
+  { era:'1948', field:'정보이론',
+    q:'"정보의 양"을 측정할 수 있는가?\n노이즈 채널에서 완벽한 전달이 가능한가?',
+    segno:'볼츠만 엔트로피 (1877) · 나이퀴스트 (1924)',
+    cadence:{key:'full',sym:'‖',label:'완전종지 — 디지털 혁명의 수학적 기반'},
+    rows:[
+      { skill:'확률론 + 볼츠만 엔트로피 유추\n("정보 = 불확실성")', idea:'정보 = 불확실성 감소량\n채널 용량 정리: 한계가 있지만 도달 가능', writing:'"bit" · "정보 엔트로피" · "채널 용량" · "압축"' },
+    ]},
+];
+
+// 학술 뷰 렌더
+function renderAcademicView() {
+  const FIELD_COLOR = { '수학':'#eef2ff', '물리':'#eff6ff', '컴퓨터과학':'#f0fdf4', '정보이론':'#fffbeb' };
+  const saved = JSON.parse(localStorage.getItem('acad-notes')||'{}');
+
+  const html = `<div class="acad-timeline">${ACADEMIC_SCORE.map((e,i) => {
+    const rows = e.rows.map(r => `
+      <div class="acad-grid">
+        <div class="acad-cell acad-skill"><div class="acad-lbl">도구·스킬</div><div class="acad-val">${escHtml(r.skill)}</div></div>
+        <div class="acad-cell acad-idea"><div class="acad-lbl">발견·아이디어</div><div class="acad-val">${escHtml(r.idea)}</div></div>
+        <div class="acad-cell acad-writing"><div class="acad-lbl">생산된 용어·글감</div><div class="acad-val">${
+          r.writing.split('·').map(t => `<span class="term">${escHtml(t.trim())}</span>`).join(' ')
+        }</div></div>
+      </div>`).join('');
+    const noteKey = `acad-${i}`;
+    const noteVal = saved[noteKey] || '';
+    return `<div class="acad-entry">
+      <div class="acad-dot"></div>
+      <div class="acad-era" style="background:${FIELD_COLOR[e.field]||'#f3f4f6'};display:inline-block;padding:.05rem .45rem;border-radius:3px;margin-bottom:.3rem">${e.era} &nbsp;·&nbsp; ${e.field}</div>
+      <div class="acad-q">${escHtml(e.q)}</div>
+      <div class="acad-segno">${escHtml(e.segno)}</div>
+      ${rows}
+      <div class="acad-cadence" data-c="${e.cadence.key}">${e.cadence.sym} &nbsp;${escHtml(e.cadence.label)}</div>
+      <div class="acad-note-wrap">
+        <div class="acad-note-lbl">내 메모 (저장됨)</div>
+        <textarea class="acad-note" data-key="${noteKey}" placeholder="이 개념에 대한 내 이해, 연결되는 질문, 참고할 책...">${escHtml(noteVal)}</textarea>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+
+  const el = document.getElementById('academic-view');
+  el.innerHTML = html;
+  el.querySelectorAll('.acad-note').forEach(ta => {
+    ta.addEventListener('input', debounce(() => {
+      const notes = JSON.parse(localStorage.getItem('acad-notes')||'{}');
+      notes[ta.dataset.key] = ta.value;
+      localStorage.setItem('acad-notes', JSON.stringify(notes));
+    }, 600));
+  });
+}
+
+// ── 뷰 전환 (악보 ↔ 날짜별 ↔ 학술) ──────────────────────────
 function setView(v) {
-  const isCal = v === 'cal';
-  document.body.classList.toggle('cal-mode', isCal);
-  document.getElementById('btn-score').classList.toggle('active', !isCal);
-  document.getElementById('btn-cal').classList.toggle('active', isCal);
-  if (isCal) renderCalView();
+  const modes = { score: false, cal: false, acad: false };
+  modes[v] = true;
+  document.body.classList.toggle('cal-mode', modes.cal || modes.acad);
+  document.getElementById('score-table').style.display = (modes.cal || modes.acad) ? 'none' : '';
+  document.getElementById('add-q-btn').style.display  = (modes.cal || modes.acad) ? 'none' : '';
+  document.getElementById('cal-view').style.display       = modes.cal  ? 'block' : 'none';
+  document.getElementById('academic-view').style.display  = modes.acad ? 'block' : 'none';
+  ['score','cal','acad'].forEach(id => {
+    document.getElementById('btn-'+id)?.classList.toggle('active', modes[id]);
+  });
+  if (modes.cal)  renderCalView();
+  if (modes.acad) renderAcademicView();
 }
 
 function renderCalView() {
