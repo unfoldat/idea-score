@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>내가 읽은 정보가 맞는지 어떻게 알지? — 신뢰도 검사 스킬</title>
+<meta name="description" content="정보의 신뢰도를 검증하는 방법. 원본 출처(certificate) 찾기, 교차 검증, NVC 관찰/평가 구분, P≠NP 검증 원리까지.">
+<meta property="og:title" content="내가 읽은 정보가 맞는지 어떻게 알지? — 신뢰도 검사 스킬">
+<meta property="og:description" content="정보 검증의 핵심: 원본 출처(certificate)를 제시할 수 있으면 빠르게 검증 가능. 없으면 NP-hard.">
+<meta property="og:type" content="article">
+<link rel="canonical" href="https://www.willfoldat.com/tips/reliability.html">
+<style>
+:root{--ink:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--accent:#4f46e5;
+  --ok:#10b981;--warn:#f59e0b;--bad:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  background:#fafafa;color:var(--ink);font-size:14px;line-height:1.6;padding:2rem;max-width:740px;margin:0 auto}
+h1{font-size:1.2rem;font-weight:800;margin-bottom:.4rem;line-height:1.4}
+.sub{font-size:.82rem;color:var(--muted);margin-bottom:2rem;line-height:1.6}
+h2{font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:2.2rem 0 .9rem;display:flex;align-items:center;gap:.5rem}
+h2::after{content:'';flex:1;height:1px;background:var(--border)}
+/* 판정 박스 */
+.judge-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+.judge{border-radius:8px;padding:1rem 1.1rem}
+.judge-ok{background:#ecfdf5;border:1.5px solid #6ee7b7}
+.judge-warn{background:#fffbeb;border:1.5px solid #fcd34d}
+.judge-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem}
+.judge-ok .judge-lbl{color:#065f46}
+.judge-warn .judge-lbl{color:#92400e}
+.judge-item{font-size:.78rem;margin-bottom:.2rem;display:flex;gap:.4rem}
+.judge-item::before{content:'→';color:var(--muted);flex-shrink:0}
+/* 체크리스트 */
+.checklist{list-style:none;margin-bottom:1.5rem}
+.checklist li{display:grid;grid-template-columns:1.6rem 1fr;gap:.35rem;
+  padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.checklist li:last-child{border-bottom:none}
+.step-num{font-size:.62rem;font-weight:900;color:var(--accent);padding-top:.15rem}
+.step-title{font-weight:700;margin-bottom:.15rem}
+.step-desc{font-size:.75rem;color:var(--muted);line-height:1.55}
+/* P≠NP 박스 */
+.pnp-box{background:#f0f0ff;border:1.5px solid #c7d2fe;border-radius:8px;
+  padding:1rem 1.1rem;margin-bottom:1.5rem}
+.pnp-box h3{font-size:.72rem;font-weight:700;color:var(--accent);margin-bottom:.5rem}
+.pnp-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.5rem}
+.pnp-cell{background:#fff;border-radius:6px;padding:.55rem .7rem}
+.pnp-lbl{font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.25rem}
+.pnp-val{font-size:.78rem;line-height:1.45}
+.pnp-insight{font-size:.75rem;color:#3730a3;line-height:1.6;border-top:1px solid #c7d2fe;
+  padding-top:.55rem;margin-top:.1rem}
+/* NVC 박스 */
+.nvc-box{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;
+  padding:1rem 1.1rem;margin-bottom:1.5rem}
+.nvc-box h3{font-size:.72rem;font-weight:700;color:#c2410c;margin-bottom:.5rem}
+.nvc-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.nvc-cell{background:#fff;border-radius:6px;padding:.55rem .7rem}
+.nvc-lbl{font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.2rem}
+.nvc-ex{font-size:.73rem;color:var(--ink);margin-bottom:.2rem;font-style:italic}
+.nvc-tag{font-size:.65rem;color:var(--ok);font-weight:700}
+.nvc-tag-bad{color:var(--bad)}
+/* Unfold 박스 */
+.unfold-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;
+  padding:1rem 1.1rem;margin-bottom:1.5rem}
+.unfold-box h3{font-size:.72rem;font-weight:700;color:#166534;margin-bottom:.5rem}
+.unfold-flow{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;
+  font-size:.75rem;margin-bottom:.5rem}
+.unfold-step{background:#fff;border:1px solid #86efac;border-radius:5px;
+  padding:.2rem .55rem;font-size:.73rem}
+.unfold-arrow{color:var(--muted);font-size:.75rem}
+.unfold-desc{font-size:.75rem;color:#166534;line-height:1.55}
+/* FAQ */
+.faq{margin-top:.5rem}
+.faq-item{border-bottom:1px solid var(--border);padding:.85rem 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-size:.82rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+.faq-a{font-size:.78rem;color:var(--muted);line-height:1.6}
+.faq-a strong{color:var(--ink)}
+/* nav */
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{font-size:.7rem;color:var(--muted);text-decoration:none;padding:.2rem .5rem;
+  border:1px solid var(--border);border-radius:5px;background:#fff}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "인터넷 글이나 유튜브 정보를 믿어도 되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "저자, 날짜, 원본 출처 3가지를 확인하세요. 특히 구체적 수치나 통계는 원본 논문이나 공문서까지 거슬러 올라가야 합니다. 없으면 주장(평가)일 뿐입니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "AI(ChatGPT, Claude 등)가 한 말은 어떻게 검증하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AI는 hallucination(허위 생성)이 있습니다. 구체적 주장은 반드시 원본 출처를 요청하고 직접 확인하세요. AI 답변을 '아이디어 출발점'으로는 쓸 수 있지만 최종 근거로는 쓰면 안 됩니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "책에 나온 정보는 맞는 거 아닌가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "책도 오류가 있습니다. 특히 2차 문헌(다른 책을 인용)은 원본을 왜곡할 수 있습니다. 1차 자료(논문, 공문서, 원저자 저술)로 직접 확인하는 것이 가장 확실합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "정보의 신뢰도 검증이 왜 어렵나요? P≠NP와 관련 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "P≠NP 개념으로 보면, 원본 출처(certificate)가 있을 때 검증은 빠릅니다(P). 하지만 출처 없이 '이게 맞나?'를 판단하는 것은 훨씬 어렵습니다. 신뢰도 검사의 핵심은 검증 가능한 certificate를 요구하는 것입니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "절판 책이나 스캔된 자료는 어떻게 원문 확인을 하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Unfold AT(https://www.willfoldat.com)를 사용하면 스캔 PDF에 OCR 텍스트 레이어를 추가해 검색 가능한 전자책으로 만들 수 있습니다. 특정 페이지의 인용문을 직접 검색하고 확인할 수 있습니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "'관찰'과 '평가'를 어떻게 구분하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "관찰: 누가 언제 봐도 동일하게 확인할 수 있는 사실 ('이 책 3쪽에 X라고 쓰여 있다'). 평가: 해석이나 판단이 포함된 주장 ('이 이론은 옳다'). 신뢰도 검사는 평가를 관찰로 분해하는 작업입니다."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<div class="nav">
+  <a href="/">← willfoldat</a>
+  <a href="/app/">아이디어 악보</a>
+  <a href="/tips/github-pages-dns.html">GitHub Pages DNS</a>
+</div>
+
+<h1>내가 읽은 정보가 맞는지 어떻게 알지?</h1>
+<p class="sub">신뢰도 검사 스킬 — 원본 출처(certificate) 찾기 · 교차 검증 · NVC 관찰/평가 구분 · P≠NP 검증 원리</p>
+
+<!-- 판정: 먼저 물을 것 -->
+<h2>먼저 물어볼 것</h2>
+<div class="judge-row">
+  <div class="judge judge-ok">
+    <div class="judge-lbl">검증 가능 — 관찰</div>
+    <div class="judge-item">원본이 어디 있는지 알 수 있다</div>
+    <div class="judge-item">"3쪽에 이렇게 쓰여 있다"</div>
+    <div class="judge-item">수치, 날짜, 저자가 명시됨</div>
+    <div class="judge-item">누가 봐도 같은 결론</div>
+  </div>
+  <div class="judge judge-warn">
+    <div class="judge-lbl">검증 필요 — 평가</div>
+    <div class="judge-item">출처 없이 "~라고 한다"</div>
+    <div class="judge-item">해석, 요약, 가치판단 포함</div>
+    <div class="judge-item">AI / 인플루언서 / 유명인 발언</div>
+    <div class="judge-item">수치가 있어도 출처 없음</div>
+  </div>
+</div>
+
+<!-- P≠NP 연결 -->
+<h2>왜 검증이 어렵나 — P≠NP로 보기</h2>
+<div class="pnp-box">
+  <h3>정보 신뢰도 검사 = certificate 문제</h3>
+  <div class="pnp-row">
+    <div class="pnp-cell">
+      <div class="pnp-lbl">P — 검증 쉬움</div>
+      <div class="pnp-val">원본 출처(certificate)가 있을 때<br>→ 책 펼쳐서 확인 = 빠름<br>→ 논문 찾아서 확인 = 빠름</div>
+    </div>
+    <div class="pnp-cell">
+      <div class="pnp-lbl">NP — 찾기 어려움</div>
+      <div class="pnp-val">출처 없이 "맞나?" 판단할 때<br>→ 모든 가능성 탐색 필요<br>→ 반증도, 지지 증거도 불분명</div>
+    </div>
+  </div>
+  <div class="pnp-insight">
+    <strong>핵심 원리:</strong> 신뢰도 검사의 목표는 주장을 직접 판단하는 게 아니라
+    <strong>검증 가능한 certificate(원본 출처)를 요구하는 것</strong>이다.
+    Certificate가 있으면 P(빠른 검증), 없으면 NP-hard(판단 불가).
+    "출처가 뭐야?"라고 묻는 것 자체가 문제를 P로 바꾸는 행위.
+  </div>
+</div>
+
+<!-- NVC 관찰 vs 평가 -->
+<h2>NVC: 관찰과 평가 구분하기</h2>
+<div class="nvc-box">
+  <h3>비폭력대화(NVC)의 첫 단계 — 관찰(Observation)</h3>
+  <div class="nvc-row">
+    <div class="nvc-cell">
+      <div class="nvc-lbl">관찰 — certificate 있음</div>
+      <div class="nvc-ex">"이 책 p.47에 '엔트로피는 증가한다'고 쓰여 있다"</div>
+      <div class="nvc-ex">"2023년 Nature 논문에서 X를 측정했다"</div>
+      <div class="nvc-tag">검증 가능 (P)</div>
+    </div>
+    <div class="nvc-cell">
+      <div class="nvc-lbl">평가 — certificate 없음</div>
+      <div class="nvc-ex">"엔트로피 법칙은 사회에도 적용된다"</div>
+      <div class="nvc-ex">"이 연구가 사실이라고 한다"</div>
+      <div class="nvc-tag nvc-tag-bad">출처 요청 필요 (NP→P로 변환)</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5단계 체크리스트 -->
+<h2>신뢰도 검사 5단계</h2>
+<ul class="checklist">
+  <li>
+    <span class="step-num">①</span>
+    <div>
+      <div class="step-title">원본 출처로 거슬러 올라가기</div>
+      <div class="step-desc">2차 문헌(책, 유튜브, 기사)이 인용한 원본(논문, 공문서, 원저자 저술)을 찾는다.
+      "이 책에서 그렇게 썼다" ≠ "그게 사실이다". 원본 없으면 평가다.</div>
+    </div>
+  </li>
+  <li>
+    <span class="step-num">②</span>
+    <div>
+      <div class="step-title">저자 / 기관 확인</div>
+      <div class="step-desc">누가 썼나? 그 분야의 1차 연구자인가, 대중 해설자인가?
+      이해충돌이 있나? (제품을 파는 회사의 연구결과는 특히 주의)</div>
+    </div>
+  </li>
+  <li>
+    <span class="step-num">③</span>
+    <div>
+      <div class="step-title">반대 주장 검색</div>
+      <div class="step-desc">"[주장] 반론", "[주장] criticism", "[주장] replication failure" 등으로 검색.
+      반대 증거 없이 한쪽만 보면 확증 편향이 생긴다.</div>
+    </div>
+  </li>
+  <li>
+    <span class="step-num">④</span>
+    <div>
+      <div class="step-title">날짜 확인 — 정보 유효기간</div>
+      <div class="step-desc">과학 연구는 업데이트된다. 5년 이상 된 영양학·의학 정보는 재확인.
+      법·규정 정보는 시행일 확인 필수.</div>
+    </div>
+  </li>
+  <li>
+    <span class="step-num">⑤</span>
+    <div>
+      <div class="step-title">아이디어 악보에 기록</div>
+      <div class="step-desc">검증 결과를 질문→스킬→아이디어→글감 형식으로 남겨라.
+      "맞다/틀리다"보다 "어떤 조건에서 맞나?"가 더 정확한 기록이다.</div>
+    </div>
+  </li>
+</ul>
+
+<!-- Unfold 활용 -->
+<h2>절판 책 · 스캔 자료 검증 — Unfold 활용</h2>
+<div class="unfold-box">
+  <h3>이미지 PDF → 검색 가능 전자책으로</h3>
+  <div class="unfold-flow">
+    <span class="unfold-step">스캔 PDF</span>
+    <span class="unfold-arrow">→</span>
+    <span class="unfold-step">Unfold OCR</span>
+    <span class="unfold-arrow">→</span>
+    <span class="unfold-step">텍스트 레이어 추가</span>
+    <span class="unfold-arrow">→</span>
+    <span class="unfold-step">검색 · 복사 · 인용 가능</span>
+  </div>
+  <p class="unfold-desc">
+    절판 책에서 인용한 문장이 실제로 원문과 일치하는지 확인하려면 텍스트가 있어야 한다.
+    Unfold AT는 스캔 이미지 PDF에 OCR로 텍스트 레이어를 추가해 검색·복사 가능한 전자책으로 만든다.
+    "<strong>원본을 직접 읽을 수 있게 하는 것</strong>" 자체가 신뢰도 검사 인프라다.
+  </p>
+</div>
+
+<!-- FAQ -->
+<h2>자주 묻는 질문</h2>
+<div class="faq">
+  <div class="faq-item">
+    <div class="faq-q">인터넷 글이나 유튜브 정보를 믿어도 되나요?</div>
+    <div class="faq-a">저자, 날짜, 원본 출처 3가지를 확인하세요.
+    특히 구체적 수치나 통계는 원본 논문이나 공문서까지 거슬러 올라가야 합니다.
+    없으면 <strong>주장(평가)일 뿐</strong>입니다.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">AI(ChatGPT, Claude 등)가 한 말은 어떻게 검증하나요?</div>
+    <div class="faq-a">AI는 hallucination(허위 생성)이 있습니다.
+    구체적 주장은 반드시 <strong>원본 출처를 요청하고 직접 확인</strong>하세요.
+    AI 답변은 '아이디어 출발점'으로만 쓰세요.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">책에 나온 정보는 맞는 거 아닌가요?</div>
+    <div class="faq-a">책도 오류가 있습니다. 특히 2차 문헌(다른 책을 인용)은 원본을 왜곡할 수 있습니다.
+    <strong>1차 자료(논문, 공문서, 원저자 저술)로 직접 확인</strong>하는 것이 최선입니다.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">신뢰도 검사가 왜 P≠NP 문제와 연결되나요?</div>
+    <div class="faq-a">원본 출처(certificate)가 있을 때 검증은 빠릅니다(P).
+    출처 없이 '이게 맞나?'를 판단하는 것은 훨씬 어렵습니다.
+    <strong>"출처가 뭐야?"라고 묻는 것</strong> 자체가 문제를 P로 바꾸는 행위입니다.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">절판 책이나 스캔 자료는 어떻게 원문 확인을 하나요?</div>
+    <div class="faq-a">Unfold AT를 사용하면 스캔 PDF에 OCR로 텍스트를 추가해
+    <strong>검색·복사 가능한 전자책</strong>으로 만들 수 있습니다.
+    특정 페이지의 인용문을 직접 검색하고 확인할 수 있습니다.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">'관찰'과 '평가'를 어떻게 구분하나요?</div>
+    <div class="faq-a">
+    <strong>관찰:</strong> 누가 언제 봐도 동일하게 확인할 수 있는 사실 ("이 책 3쪽에 X라고 쓰여 있다").<br>
+    <strong>평가:</strong> 해석이나 판단이 포함된 주장 ("이 이론은 옳다").<br>
+    신뢰도 검사는 평가를 관찰로 분해하는 작업입니다.</div>
+  </div>
+</div>
+
+</body>
+</html>
