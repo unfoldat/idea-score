@@ -587,6 +587,29 @@ const ACADEMIC_SCORE = [
     rows:[
       { skill:'확률론 + 볼츠만 엔트로피 유추\n("정보 = 불확실성")', idea:'정보 = 불확실성 감소량\n채널 용량 정리: 한계가 있지만 도달 가능', writing:'"bit" · "정보 엔트로피" · "채널 용량" · "압축"' },
     ]},
+  { era:'1950', field:'수학',
+    q:'위상적 사이클과 대수적 사이클은 같은가?\n투영에서 잃어버린 것을 대수로 복원할 수 있는가?',
+    segno:'드람 코호몰로지 (1931) · 카르탕',
+    cadence:{key:'half',sym:'↑'},
+    rows:[
+      { skill:'미분형식 + 위상 추적\n∫로 잃어버린 +C를 코호몰로지 클래스로 측정', idea:'투영 손실 = 코호몰로지 클래스\n위상 복잡성 = 대수 복잡성 (추측, 미증명)', writing:'"코호몰로지" · "호지 분해" · "대수적 사이클" · "+C"' },
+    ]},
+  { era:'1960', field:'수학',
+    q:'서로 다른 수학 언어들(위상·대수·해석)이\n왜 같은 답을 주는가? 원본이 존재하는가?',
+    segno:'베유 추측 (1949) · 호지 (1950)',
+    cadence:{key:'full',sym:'‖'},
+    rows:[
+      { skill:'범주론 — 대상이 아닌 관계(morphism)\n층(sheaf) — 국소 → 전역 접착 구조', idea:'모티프(motive) = 모든 코호몰로지의 그림자 원본\n국소 해가 전역으로 안 붙는 이유 = H¹ 장애물 = +C', writing:'"모티프" · "스킴(scheme)" · "토포스" · "상승하는 바다"' },
+      { skill:'', idea:'세미라티스 join 부재\n= 코호몰로지 H¹ 장애물\n= 적분의 +C\n= 세 가지 언어로 쓴 같은 구조', writing:'' },
+    ]},
+  { era:'1971', field:'컴퓨터과학',
+    q:'답을 검증하는 것과 답을 찾는 것은\n근본적으로 다른가? (P = NP?)',
+    segno:'튜링 계산 가능성 (1936) · 괴델 불완전성 (1931)',
+    cadence:{key:'open',sym:'→'},
+    rows:[
+      { skill:'Certificate 개념\nSAT 문제 → NP-완전성 귀착 증명', idea:'NP-hard = 고차원 구조가 저차원에 투영될 때 생기는 마찰\n= 갈루아/호지의 차원 변환 문제와 동형', writing:'"P vs NP" · "NP-완전" · "certificate" · "Cook-Levin"' },
+      { skill:'구형균형 — 카오스 3층(Lorenz·Rössler·Chen)', idea:'전역 최적해(NP-hard) 포기\n→ 어트랙터로 준수한 해 탐색(Std 1.5)\n= 부처 접근: NP-hard 안 풀고 로컬 상승만', writing:'"5D 하이퍼큐브" · "에르고딕" · "세미라티스 탐색"' },
+    ]},
 ];
 
 function renderAcademicView() {
