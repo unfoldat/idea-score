@@ -120,13 +120,50 @@ tbody:hover .del-group{opacity:.4}
 .legend-item{display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--muted)}
 
 /* 저장 상태 표시 */
-.save-status{font-size:.7rem;color:var(--muted);margin-left:auto}
+.save-status{font-size:.7rem;color:var(--muted)}
+
+/* ── 날짜 / 달력 뷰 ── */
+/* 악보 뷰의 날짜 표시 (종지 행 오른쪽) */
+.entry-date{float:right;font-size:.6rem;color:var(--muted);
+  font-variant-numeric:tabular-nums;opacity:.55;margin-top:.18rem}
+
+/* 뷰 토글 버튼 */
+.view-btn{font-size:.72rem;padding:.25rem .6rem}
+.view-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* 달력(타임라인) 뷰 */
+#cal-view{display:none}
+.cal-day{margin-bottom:2.2rem}
+.cal-day-header{
+  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-bottom:2px solid var(--ink);padding-bottom:.3rem;margin-bottom:.65rem;
+  display:flex;align-items:baseline;gap:.5rem}
+.cal-day-header time{font-size:.8rem;color:var(--ink);font-style:normal;
+  font-variant-numeric:tabular-nums}
+.cal-day-header .day-count{font-size:.62rem;color:var(--muted);font-weight:400}
+.cal-entry{display:flex;align-items:baseline;gap:.5rem;
+  margin-bottom:.4rem;padding:.25rem .3rem;border-radius:4px}
+.cal-entry:hover{background:#f3f4f6}
+.cal-mark{width:1.2rem;height:1.2rem;border:2px solid var(--ink);border-radius:3px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.58rem;font-weight:900;flex-shrink:0;background:#fff}
+.cal-q{flex:1;font-size:.82rem;font-weight:600;color:var(--ink)}
+.cal-sym{font-size:.82rem;font-weight:900;flex-shrink:0}
+.cal-sym[data-c="full"]      {color:var(--c-full)}
+.cal-sym[data-c="half"]      {color:var(--c-half)}
+.cal-sym[data-c="deceptive"] {color:var(--c-deceptive)}
+.cal-sym[data-c="open"]      {color:var(--c-open)}
+/* 달력 뷰일 때 악보 숨김 */
+body.cal-mode #score-table,body.cal-mode #add-q-btn{display:none}
+body.cal-mode #cal-view{display:block}
 </style>
 </head>
 <body>
 
 <div class="toolbar">
   <h1>아이디어 악보 · Idea Score</h1>
+  <button class="btn view-btn active" id="btn-score" onclick="setView('score')">악보</button>
+  <button class="btn view-btn"        id="btn-cal"   onclick="setView('cal')">날짜별</button>
   <span class="save-status" id="save-status"></span>
   <button class="btn btn-ghost" onclick="loadExample()">예시 보기</button>
   <button class="btn btn-ghost" onclick="clearAll()">비우기</button>
@@ -143,8 +180,9 @@ tbody:hover .del-group{opacity:.4}
   </tr>
 </thead>
 </table>
+<div id="cal-view"></div>
 
-<button class="btn" style="margin-top:1rem" onclick="addQuestion()">+ 질��� 추가</button>
+<button class="btn" id="add-q-btn" style="margin-top:1rem" onclick="addQuestion()">+ 질문 추가</button>
 
 <!-- 범례 -->
 <div class="legend">
@@ -207,6 +245,9 @@ function addQuestion(data) {
   const tbody = document.createElement('tbody');
   const d = data || {};
   const cadence = d.cadence || CADENCES[0];
+  const today = new Date().toISOString().slice(0,10);
+  const date = d.date || today;
+  tbody.dataset.date = date;
 
   tbody.innerHTML = `
   <tr>
@@ -237,6 +278,7 @@ function addQuestion(data) {
       <span class="double-bar"></span>
       <button class="del-group btn btn-ghost" style="font-size:.68rem;margin-left:.5rem"
         onclick="this.closest('tbody').remove();refreshMarks();save()">그룹 삭제</button>
+      <time class="entry-date" datetime="${date}">${date}</time>
     </td>
   </tr>`;
 
@@ -289,6 +331,7 @@ function getState() {
     });
     groups.push({
       q:       qEl.innerText.trim(),
+      date:    tb.dataset.date || new Date().toISOString().slice(0,10),
       cadence: cBtn ? { key: cBtn.dataset.c,
                         sym: cBtn.querySelector('.sym').textContent,
                         label: cBtn.querySelector('.lbl').textContent.trim() } : CADENCES[0],
@@ -366,6 +409,55 @@ function exportHTML() {
     download: 'idea-score-' + new Date().toISOString().slice(0,10) + '.html'
   });
   a.click();
+}
+
+// ── 뷰 전환 (악보 ↔ 날짜별) ──────────────────────────────────
+function setView(v) {
+  const isCal = v === 'cal';
+  document.body.classList.toggle('cal-mode', isCal);
+  document.getElementById('btn-score').classList.toggle('active', !isCal);
+  document.getElementById('btn-cal').classList.toggle('active', isCal);
+  if (isCal) renderCalView();
+}
+
+function renderCalView() {
+  const marks = [...document.querySelectorAll('.rehearsal')].map(r => r.textContent);
+  const byDate = {};
+  document.querySelectorAll('#score-table tbody').forEach((tb, i) => {
+    const date = tb.dataset.date || new Date().toISOString().slice(0,10);
+    const qEl  = tb.querySelector('.q-text');
+    const cBtn = tb.querySelector('.cadence-btn');
+    if (!byDate[date]) byDate[date] = [];
+    byDate[date].push({
+      mark: marks[i] || String.fromCharCode(65 + i),
+      q:    qEl?.innerText.trim() || '',
+      key:  cBtn?.dataset.c || 'open',
+      sym:  cBtn?.querySelector('.sym').textContent || '→',
+    });
+  });
+
+  const sorted = Object.keys(byDate).sort().reverse();
+  const calEl  = document.getElementById('cal-view');
+  calEl.innerHTML = sorted.length ? sorted.map(date => {
+    const entries = byDate[date];
+    const label   = new Date(date + 'T00:00:00').toLocaleDateString('ko-KR',
+      { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+    return `<div class="cal-day">
+      <div class="cal-day-header">
+        <time datetime="${date}">${label}</time>
+        <span class="day-count">— ${entries.length}개 질문</span>
+      </div>
+      ${entries.map(e => `<div class="cal-entry">
+        <span class="cal-mark">${e.mark}</span>
+        <span class="cal-q">${escHtml(e.q) || '<em style="opacity:.4">질문 없음</em>'}</span>
+        <span class="cal-sym" data-c="${e.key}">${e.sym}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('') : '<p style="color:#9ca3af;font-size:.82rem">질문이 없습니다.</p>';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function debounce(fn, ms) {
