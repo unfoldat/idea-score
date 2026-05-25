@@ -215,6 +215,8 @@ body.cal-mode #cal-view{display:block}
   <button class="btn view-btn"        id="btn-acad"   onclick="setView('acad')" data-i18n="btn-acad">학술계보</button>
   <span class="save-status" id="save-status"></span>
   <button class="btn btn-ghost" onclick="loadExample()" data-i18n="load-example">예시 보기</button>
+  <button class="btn btn-ghost" onclick="exportJSON()" data-i18n="backup">백업 ↓</button>
+  <button class="btn btn-ghost" onclick="importJSON()" data-i18n="restore">복원 ↑</button>
   <button class="btn btn-ghost" onclick="clearAll()" data-i18n="clear-all">비우기</button>
   <button class="btn btn-primary" onclick="exportHTML()" data-i18n="export">내보내기 ↓</button>
   <button class="btn btn-ghost" id="lang-btn" onclick="toggleLang()" style="font-weight:700;letter-spacing:.05em;border-color:var(--border)">EN</button>
@@ -256,7 +258,7 @@ const I18N = {
     'ph-q':'질문을 입력하세요','ph-skill':'스킬','ph-idea':'아이디어','ph-write':'글감',
     'ph-segno':'𝄋 참조 (선택)','ph-who':'독자 — 이 글 누가 읽으면 좋을까?',
     'add-row':'+ 행 추가','del-row':'행 삭제','del-group':'그룹 삭제',
-    'save-prefix':'저장됨','clear-confirm':'모두 지울까요?',
+    'save-prefix':'저장됨','clear-confirm':'모두 지울까요?','backup':'백업 ↓','restore':'복원 ↑',
     'legend-full':'완전종지 — 완전히 답됨','legend-half':'반종지 — 다음으로 이어짐',
     'legend-deceptive':'변격종지 — 예상 밖 전환','legend-open':'진행 중',
     'legend-marks':'[ ] 리허설 마크 &nbsp;·&nbsp; 𝄋 세뇨(이전 참조)',
@@ -275,7 +277,7 @@ const I18N = {
     'ph-q':'Enter a question','ph-skill':'Skill','ph-idea':'Idea','ph-write':'Writing',
     'ph-segno':'𝄋 Reference (optional)','ph-who':'For whom — who should read this?',
     'add-row':'+ Add row','del-row':'Delete','del-group':'Remove group',
-    'save-prefix':'Saved','clear-confirm':'Clear all entries?',
+    'save-prefix':'Saved','clear-confirm':'Clear all entries?','backup':'Backup ↓','restore':'Restore ↑',
     'legend-full':'Full cadence — fully answered','legend-half':'Half cadence — continues',
     'legend-deceptive':'Deceptive — unexpected turn','legend-open':'In progress',
     'legend-marks':'[ ] Rehearsal mark &nbsp;·&nbsp; 𝄋 Dal Segno (reference)',
@@ -533,6 +535,39 @@ function loadExample() {
       ]},
   ];
   load(ex);
+}
+
+// ── JSON 백업 / 복원 ─────────────────────────────────────────
+function exportJSON() {
+  const data = JSON.stringify(getState(), null, 2);
+  const blob = new Blob([data], {type: 'application/json'});
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: 'idea-score-' + new Date().toISOString().slice(0,10) + '.json'
+  });
+  a.click();
+}
+
+function importJSON() {
+  const input = Object.assign(document.createElement('input'), {
+    type: 'file', accept: '.json'
+  });
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        load(data);
+        save();
+      } catch(err) {
+        alert('JSON 파일을 읽을 수 없습니다.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
 
 // ── 내보내기 ─────────────────────────────────────────────────
