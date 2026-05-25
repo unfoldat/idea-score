@@ -217,6 +217,7 @@ body.cal-mode #cal-view{display:block}
   <button class="btn btn-ghost" onclick="loadExample()" data-i18n="load-example">예시 보기</button>
   <button class="btn btn-ghost" onclick="exportJSON()" data-i18n="backup">백업 ↓</button>
   <button class="btn btn-ghost" onclick="importJSON()" data-i18n="restore">복원 ↑</button>
+  <button class="btn btn-ghost" onclick="showHistory()" data-i18n="history">이력</button>
   <button class="btn btn-ghost" onclick="clearAll()" data-i18n="clear-all">비우기</button>
   <button class="btn btn-primary" onclick="exportHTML()" data-i18n="export">내보내기 ↓</button>
   <button class="btn btn-ghost" id="lang-btn" onclick="toggleLang()" style="font-weight:700;letter-spacing:.05em;border-color:var(--border)">EN</button>
@@ -258,7 +259,7 @@ const I18N = {
     'ph-q':'질문을 입력하세요','ph-skill':'스킬','ph-idea':'아이디어','ph-write':'글감',
     'ph-segno':'𝄋 참조 (선택)','ph-who':'독자 — 이 글 누가 읽으면 좋을까?',
     'add-row':'+ 행 추가','del-row':'행 삭제','del-group':'그룹 삭제',
-    'save-prefix':'저장됨','clear-confirm':'모두 지울까요?','backup':'백업 ↓','restore':'복원 ↑',
+    'save-prefix':'저장됨','clear-confirm':'모두 지울까요?','backup':'백업 ↓','restore':'복원 ↑','history':'이력',
     'legend-full':'완전종지 — 완전히 답됨','legend-half':'반종지 — 다음으로 이어짐',
     'legend-deceptive':'변격종지 — 예상 밖 전환','legend-open':'진행 중',
     'legend-marks':'[ ] 리허설 마크 &nbsp;·&nbsp; 𝄋 세뇨(이전 참조)',
@@ -277,7 +278,7 @@ const I18N = {
     'ph-q':'Enter a question','ph-skill':'Skill','ph-idea':'Idea','ph-write':'Writing',
     'ph-segno':'𝄋 Reference (optional)','ph-who':'For whom — who should read this?',
     'add-row':'+ Add row','del-row':'Delete','del-group':'Remove group',
-    'save-prefix':'Saved','clear-confirm':'Clear all entries?','backup':'Backup ↓','restore':'Restore ↑',
+    'save-prefix':'Saved','clear-confirm':'Clear all entries?','backup':'Backup ↓','restore':'Restore ↑','history':'History',
     'legend-full':'Full cadence — fully answered','legend-half':'Half cadence — continues',
     'legend-deceptive':'Deceptive — unexpected turn','legend-open':'In progress',
     'legend-marks':'[ ] Rehearsal mark &nbsp;·&nbsp; 𝄋 Dal Segno (reference)',
@@ -485,12 +486,40 @@ function getState() {
   return groups;
 }
 
+function _hash(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = (h * 33 ^ str.charCodeAt(i)) >>> 0;
+  return h.toString(16).padStart(8, '0');
+}
+
 function save() {
   try {
-    localStorage.setItem('idea-score', JSON.stringify(getState()));
+    const state = getState();
+    const json  = JSON.stringify(state);
+    localStorage.setItem('idea-score', json);
+    // 버전 이력 (git commit처럼 — sha + timestamp + snapshot)
+    const history = JSON.parse(localStorage.getItem('idea-score-history') || '[]');
+    const sha = _hash(json);
+    if (!history.length || history[history.length-1].sha !== sha) {
+      history.push({ sha, ts: new Date().toISOString(), data: state });
+      if (history.length > 30) history.shift();
+      localStorage.setItem('idea-score-history', JSON.stringify(history));
+    }
     const s = document.getElementById('save-status');
-    s.textContent = T('save-prefix') + ' ' + new Date().toLocaleTimeString();
+    s.textContent = T('save-prefix') + ' ' + new Date().toLocaleTimeString() + ' #' + sha.slice(0,6);
   } catch(e) {}
+}
+
+function showHistory() {
+  const history = JSON.parse(localStorage.getItem('idea-score-history') || '[]');
+  if (!history.length) { alert('저장 이력이 없습니다.'); return; }
+  const lines = history.map((v, i) =>
+    `${i+1}. [${v.sha.slice(0,6)}] ${v.ts.slice(0,16).replace('T',' ')}  (${v.data.length}개 질문)`
+  ).reverse();
+  const pick = prompt('복원할 번호를 입력하세요:\n\n' + lines.join('\n'));
+  if (!pick) return;
+  const idx = history.length - parseInt(pick);
+  if (history[idx]) { load(history[idx].data); save(); }
 }
 
 function load(data) {
@@ -510,25 +539,25 @@ function clearAll() {
 function loadExample() {
   const ex = [
     { q:'히스토그램 봉우리 = 어트랙터? P≠NP 문제잖아?',
-      cadence: { key:'full', sym:'‖' },
+      date:'2026-05-24', cadence:{ key:'full', sym:'‖' },
       rows:[
-        { skill:'/ball  /patternfold', idea:'단봉 = 볼록 최적화 = P\n다봉 = 비볼록 최적화 = NP-hard', writing:'자연이 NP-hard를 물리 법칙으로 공짜로 푼다', audience:'알고리즘 공부하는 학부생' },
+        { skill:'/ball /patternfold', idea:'단봉 = 볼록 최적화 = P\n다봉 = 비볼록 최적화 = NP-hard', writing:'자연이 NP-hard를 물리 법칙으로 공짜로 푼다', audience:'알고리즘 공부하는 학부생' },
         { skill:'문병로 PDF', idea:'Turing 반응-확산이 다봉 지형 생성', writing:'' },
         { skill:'', idea:'구형균형 ↔ Unfold 양방향 Fold', writing:'' },
       ]},
     { q:'갈루아+칸토어+리만 조합 — 논리·공간·표현의 관계?',
-      cadence: { key:'half', sym:'↑' },
+      date:'2026-05-24', cadence:{ key:'half', sym:'↑' },
       rows:[
         { skill:'/patternfold', idea:'논리 = 공간 = 표현 (같은 것의 세 언어)', writing:'같은 작전을 반복한 수학자들', audience:'수학의 역사에 관심 있는 독자' },
         { skill:'수학사', idea:'갈루아: 문제 정의를 L1→L3로 변환\nP≠NP = 그 새 언어를 아직 모른다', writing:'P≠NP가 요구하는 것', audience:'CS·수학 전공자, Substack 독자' },
       ]},
     { q:'비본문(재정now) 접기 + nav와 본문 동시보기?',
-      cadence: { key:'full', sym:'‖' },
+      date:'2026-05-24', cadence:{ key:'full', sym:'‖' },
       rows:[
         { skill:'details/summary', idea:'표/이미지 없는 섹션 = secondary (자동 접힘)\n전체 접기 → main = 목록, sidebar = nav', writing:'' },
       ]},
     { q:'한 일 기록: 질문 → 스킬 → 아이디어 → 글감, 범위는?',
-      cadence: { key:'open', sym:'→' },
+      date:'2026-05-24', cadence:{ key:'open', sym:'→' },
       rows:[
         { skill:'악보 기보법', idea:'이음줄(슬러) = 질문 범위\n종지 = 해소 정도', writing:'악보를 읽듯 아이디어를 읽는다' },
         { skill:'/om', idea:'아이디어가 중간인 이유 = 중성부\n세뇨 = 이전 질문 맥락 참조', writing:'' },
