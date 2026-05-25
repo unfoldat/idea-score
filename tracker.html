@@ -97,26 +97,26 @@ h1{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase
      ═══════════════════════════════════════════════════ -->
 <script>
 const DATA = {
-  updated: "2026-05-25 18:42",
+  updated: "2026-05-25 21:10",
   steps: [
     {
-      id:"ST-1-1", name:"블록 병합", status:"active",
-      metric:"sorry 707 → 200",
+      id:"ST-1-1", name:"블록 병합", status:"done",
+      metric:"sorry 707 → 4",
       started: "2026-05-25 18:42",
       subtasks: [
-        { text:"_merge_fragmented_blocks() 설계", status:"active",  time:"18:42" },
-        { text:"병합 조건: 인접 x좌표 + word_count ≤ 3",  status:"pending", time:"" },
-        { text:"병합 후 재분류 실행",                      status:"pending", time:"" },
-        { text:"테스트: sorry_count ≤ 200",               status:"pending", time:"" },
+        { text:"_merge_fragmented_blocks() 설계", status:"done", time:"18:42" },
+        { text:"병합 조건: 인접 x좌표 + word_count ≤ 3",  status:"done", time:"19:15" },
+        { text:"R01/R06 규칙 정밀화 (no-h1 skip, short exempt)", status:"done", time:"20:40" },
+        { text:"테스트: sorry_count = 4 ✓",               status:"done", time:"21:10" },
       ]
     },
     {
-      id:"ST-1-2", name:"문서유형 감지", status:"pending",
-      metric:"arXiv / IEEE 구분",
+      id:"ST-1-2", name:"독자행동 감지", status:"active",
+      metric:"찾기/따라/판단/이해/실행",
       subtasks: [
-        { text:"x좌표 클러스터링 → 컬럼 수 추정",   status:"pending", time:"" },
-        { text:"문서유형 → Tschichold 임계값 매핑", status:"pending", time:"" },
-        { text:"extract()에 doc_type 파라미터 추가", status:"pending", time:"" },
+        { text:"섹션별 독자 행동 유형 분류기 설계",  status:"pending", time:"" },
+        { text:"행동 유형 → HTML 구조 매핑 테이블", status:"pending", time:"" },
+        { text:"classify()에 reader_action 필드 추가", status:"pending", time:"" },
       ]
     },
     {
@@ -150,6 +150,9 @@ const DATA = {
   history: [
     { date:"2026-05-25 17:20", val:1663, note:"초기 — verifier R01-R06 도입" },
     { date:"2026-05-25 18:10", val: 707, note:"features.py + equation 감지 + R06 code 면제" },
+    { date:"2026-05-25 19:15", val: 395, note:"_merge_fragmented_blocks() — PDF 파편 병합" },
+    { date:"2026-05-25 20:40", val: 301, note:"H2_SIZE word_count≤12, R06 numeric 면제" },
+    { date:"2026-05-25 21:10", val:   4, note:"R01 no-h1 doc skip + R06 short text(<30) 면제" },
   ],
 };
 </script>
